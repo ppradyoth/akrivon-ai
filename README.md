@@ -1,5 +1,11 @@
 # AkrivonAI
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](LICENSE)
+[![GitHub](https://img.shields.io/badge/GitHub-ppradyoth%2Fakrivon--ai-181717?style=for-the-badge&logo=github)](https://github.com/ppradyoth/akrivon-ai)
+[![Backend: FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
+[![Frontend: React](https://img.shields.io/badge/Frontend-React-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev)
+[![AI Engine: Gemini](https://img.shields.io/badge/AI--Engine-Gemini-4285F4?style=for-the-badge&logo=googlegemini&logoColor=white)](https://deepmind.google/technologies/gemini)
+
 AI boundary testing and runtime enforcement platform.
 
 AkrivonAI gives teams two tools for keeping deployed AI systems within their intended scope:
