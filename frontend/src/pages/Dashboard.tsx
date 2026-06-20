@@ -3,132 +3,98 @@ import { Link, useNavigate } from "react-router-dom";
 import { signOut } from "firebase/auth";
 import { auth } from "../firebase";
 import { useAuth } from "../hooks/useAuth";
-
-const BASE = import.meta.env.VITE_API_BASE ?? "/api";
-
-interface ApiKey {
-  key_id: string;
-  name: string;
-  created_at: string;
-  last_used_at: string | null;
-}
+import { getUsage, listScans, listLayers } from "../api";
 
 export default function Dashboard() {
   const { user, getToken } = useAuth();
   const navigate = useNavigate();
-  const [keys, setKeys] = useState<ApiKey[]>([]);
-  const [newKeyName, setNewKeyName] = useState("");
-  const [createdKey, setCreatedKey] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [usage, setUsage] = useState<{ plan: string; monthly_tests_used: number; monthly_tests_limit: number } | null>(null);
+  const [recentScans, setRecentScans] = useState<any[]>([]);
+  const [layerCount, setLayerCount] = useState(0);
 
-  const fetchKeys = useCallback(async () => {
+  const fetchData = useCallback(async () => {
     const token = await getToken();
     if (!token) return;
-    const res = await fetch(`${BASE}/api-keys`, { headers: { Authorization: `Bearer ${token}` } });
-    if (res.ok) setKeys(await res.json());
+    try {
+      const [u, scans, layers] = await Promise.all([getUsage(token), listScans(token), listLayers(token)]);
+      setUsage(u);
+      setRecentScans(scans.slice(0, 5));
+      setLayerCount(layers.length);
+    } catch {}
   }, [getToken]);
 
-  useEffect(() => { fetchKeys(); }, [fetchKeys]);
-
-  const createKey = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newKeyName.trim()) return;
-    setLoading(true);
-    const token = await getToken();
-    const res = await fetch(`${BASE}/api-keys`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ name: newKeyName.trim() }),
-    });
-    if (res.ok) {
-      const data = await res.json();
-      setCreatedKey(data.key);
-      setNewKeyName("");
-      fetchKeys();
-    }
-    setLoading(false);
-  };
-
-  const deleteKey = async (keyId: string) => {
-    const token = await getToken();
-    await fetch(`${BASE}/api-keys/${keyId}`, {
-      method: "DELETE",
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    fetchKeys();
-  };
+  useEffect(() => { fetchData(); }, [fetchData]);
 
   const handleSignOut = async () => {
     await signOut(auth);
     navigate("/");
   };
 
+  const usagePct = usage ? Math.min(100, (usage.monthly_tests_used / usage.monthly_tests_limit) * 100) : 0;
+
   return (
-    <section className="container" style={{ padding: "3rem 1rem", maxWidth: 720 }}>
+    <section className="container" style={{ padding: "3rem 1rem", maxWidth: 800 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <h1>Dashboard</h1>
-        <button onClick={handleSignOut} className="btn" style={{ fontSize: "0.85rem" }}>Sign out</button>
+        <div style={{ display: "flex", gap: "0.75rem" }}>
+          <Link to="/account" className="btn" style={{ fontSize: "0.85rem" }}>Account</Link>
+          <button onClick={handleSignOut} className="btn" style={{ fontSize: "0.85rem" }}>Sign out</button>
+        </div>
       </div>
 
       <p style={{ color: "var(--clr-muted, #888)", marginBottom: "2rem" }}>{user?.email}</p>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1rem", marginBottom: "2.5rem" }}>
-        <Link to="/intentscan" style={{ padding: "1.25rem", background: "var(--clr-surface, #1a1a2e)", borderRadius: 8, textAlign: "center", textDecoration: "none", color: "inherit", border: "1px solid var(--clr-border, #333)" }}>
-          <div style={{ fontSize: "1.1rem", fontWeight: 600 }}>IntentScan</div>
-          <div style={{ fontSize: "0.8rem", color: "var(--clr-muted, #888)", marginTop: "0.25rem" }}>Run a new scan</div>
-        </Link>
-        <Link to="/scans" style={{ padding: "1.25rem", background: "var(--clr-surface, #1a1a2e)", borderRadius: 8, textAlign: "center", textDecoration: "none", color: "inherit", border: "1px solid var(--clr-border, #333)" }}>
-          <div style={{ fontSize: "1.1rem", fontWeight: 600 }}>Scan History</div>
-          <div style={{ fontSize: "0.8rem", color: "var(--clr-muted, #888)", marginTop: "0.25rem" }}>View past results</div>
-        </Link>
-        <Link to="/layers" style={{ padding: "1.25rem", background: "var(--clr-surface, #1a1a2e)", borderRadius: 8, textAlign: "center", textDecoration: "none", color: "inherit", border: "1px solid var(--clr-border, #333)" }}>
-          <div style={{ fontSize: "1.1rem", fontWeight: 600 }}>Intent Layers</div>
-          <div style={{ fontSize: "0.8rem", color: "var(--clr-muted, #888)", marginTop: "0.25rem" }}>Manage proxy layers</div>
-        </Link>
-      </div>
-
-      <h2>API Keys</h2>
-
-      {createdKey && (
-        <div style={{ padding: "1rem", background: "var(--clr-surface, #1a1a2e)", border: "1px solid var(--clr-accent, #00d4aa)", borderRadius: 8, marginBottom: "1.5rem" }}>
-          <p style={{ margin: "0 0 0.5rem", fontWeight: 600 }}>New API key created — copy it now, it won't be shown again:</p>
-          <code style={{ wordBreak: "break-all", fontSize: "0.85rem" }}>{createdKey}</code>
-          <button onClick={() => { navigator.clipboard.writeText(createdKey); }} className="btn" style={{ marginLeft: "1rem", fontSize: "0.8rem" }}>Copy</button>
-          <button onClick={() => setCreatedKey(null)} className="btn" style={{ marginLeft: "0.5rem", fontSize: "0.8rem" }}>Dismiss</button>
+      {/* Usage card */}
+      {usage && (
+        <div style={{ padding: "1.25rem", background: "var(--clr-surface, #1a1a2e)", borderRadius: 8, border: "1px solid var(--clr-border, #333)", marginBottom: "2rem" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.75rem" }}>
+            <span style={{ fontWeight: 600 }}>Monthly Usage</span>
+            <span style={{ fontSize: "0.85rem", textTransform: "capitalize", color: "var(--clr-accent, #00d4aa)" }}>{usage.plan} plan</span>
+          </div>
+          <div style={{ background: "var(--clr-border, #333)", borderRadius: 4, height: 8, overflow: "hidden" }}>
+            <div style={{ width: `${usagePct}%`, height: "100%", background: usagePct > 80 ? "var(--clr-danger, #e74c3c)" : "var(--clr-accent, #00d4aa)", borderRadius: 4, transition: "width 0.3s" }} />
+          </div>
+          <p style={{ fontSize: "0.85rem", color: "var(--clr-muted, #888)", marginTop: "0.5rem" }}>
+            {usage.monthly_tests_used.toLocaleString()} / {usage.monthly_tests_limit.toLocaleString()} tests used
+          </p>
         </div>
       )}
 
-      <form onSubmit={createKey} style={{ display: "flex", gap: "0.75rem", marginBottom: "1.5rem" }}>
-        <input
-          type="text"
-          placeholder="Key name (e.g. production)"
-          value={newKeyName}
-          onChange={(e) => setNewKeyName(e.target.value)}
-          required
-          style={{ flex: 1, padding: "0.5rem 0.75rem", borderRadius: 6, border: "1px solid var(--clr-border, #333)", background: "var(--clr-surface, #1a1a2e)", color: "inherit" }}
-        />
-        <button type="submit" disabled={loading} className="btn btn-primary">{loading ? "Creating..." : "Create key"}</button>
-      </form>
+      {/* Quick actions */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "1rem", marginBottom: "2.5rem" }}>
+        <ActionCard to="/intentscan" label="New Scan" sub="Run IntentScan" />
+        <ActionCard to="/scans" label="History" sub={`${recentScans.length}+ scans`} />
+        <ActionCard to="/layers" label="Layers" sub={`${layerCount} active`} />
+        <ActionCard to="/enforce" label="Enforce" sub="Test playground" />
+      </div>
 
-      {keys.length === 0 ? (
-        <p style={{ color: "var(--clr-muted, #888)" }}>No API keys yet.</p>
+      {/* Recent scans */}
+      <h2>Recent Scans</h2>
+      {recentScans.length === 0 ? (
+        <p style={{ color: "var(--clr-muted, #888)" }}>No scans yet. <Link to="/intentscan">Run your first scan</Link>.</p>
       ) : (
-        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+        <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "0.75rem" }}>
           <thead>
             <tr style={{ textAlign: "left", borderBottom: "1px solid var(--clr-border, #333)" }}>
-              <th style={{ padding: "0.5rem 0" }}>Name</th>
-              <th>Created</th>
-              <th>Last used</th>
-              <th></th>
+              <th style={thStyle}>Date</th>
+              <th style={thStyle}>Status</th>
+              <th style={thStyle}>Risk</th>
+              <th style={thStyle}>Violations</th>
+              <th style={thStyle}></th>
             </tr>
           </thead>
           <tbody>
-            {keys.map((k) => (
-              <tr key={k.key_id} style={{ borderBottom: "1px solid var(--clr-border, #222)" }}>
-                <td style={{ padding: "0.5rem 0" }}>{k.name}</td>
-                <td style={{ fontSize: "0.85rem", color: "var(--clr-muted, #888)" }}>{new Date(k.created_at).toLocaleDateString()}</td>
-                <td style={{ fontSize: "0.85rem", color: "var(--clr-muted, #888)" }}>{k.last_used_at ? new Date(k.last_used_at).toLocaleDateString() : "Never"}</td>
-                <td><button onClick={() => deleteKey(k.key_id)} className="btn" style={{ fontSize: "0.8rem", color: "var(--clr-danger, #e74c3c)" }}>Delete</button></td>
+            {recentScans.map((s) => (
+              <tr key={s.scan_id} style={{ borderBottom: "1px solid var(--clr-border, #222)" }}>
+                <td style={tdStyle}>{new Date(s.created_at).toLocaleDateString()}</td>
+                <td style={tdStyle}>
+                  <span style={{ color: s.status === "complete" ? "var(--clr-accent, #00d4aa)" : s.status === "failed" ? "var(--clr-danger, #e74c3c)" : "var(--clr-muted, #888)" }}>
+                    {s.status}
+                  </span>
+                </td>
+                <td style={tdStyle}>{s.summary?.risk_score?.toFixed(1) ?? "—"}</td>
+                <td style={tdStyle}>{s.summary?.violations ?? "—"}</td>
+                <td style={tdStyle}><Link to={`/scans/${s.scan_id}`}>View</Link></td>
               </tr>
             ))}
           </tbody>
@@ -137,3 +103,15 @@ export default function Dashboard() {
     </section>
   );
 }
+
+function ActionCard({ to, label, sub }: { to: string; label: string; sub: string }) {
+  return (
+    <Link to={to} style={{ padding: "1.25rem", background: "var(--clr-surface, #1a1a2e)", borderRadius: 8, textAlign: "center", textDecoration: "none", color: "inherit", border: "1px solid var(--clr-border, #333)" }}>
+      <div style={{ fontSize: "1.1rem", fontWeight: 600 }}>{label}</div>
+      <div style={{ fontSize: "0.8rem", color: "var(--clr-muted, #888)", marginTop: "0.25rem" }}>{sub}</div>
+    </Link>
+  );
+}
+
+const thStyle: React.CSSProperties = { padding: "0.5rem 0.5rem 0.5rem 0" };
+const tdStyle: React.CSSProperties = { padding: "0.5rem 0.5rem 0.5rem 0", fontSize: "0.9rem" };

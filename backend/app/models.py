@@ -10,6 +10,11 @@ class StrategyName(str, Enum):
     role_transformation = "RoleTransformation"
     gradual_drift = "GradualDrift"
     language_variation = "LanguageVariation"
+    multi_turn_escalation = "MultiTurnEscalation"
+    encoding_bypass = "EncodingBypass"
+    indirect_injection = "IndirectInjection"
+    persona_injection = "PersonaInjection"
+    payload_splitting = "PayloadSplitting"
 
 
 class ScanConfig(BaseModel):

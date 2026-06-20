@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 import asyncio
+import json
 import os
 
 import httpx
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import Response
 from pydantic import BaseModel, Field
 
 from intent_layer.engine import enforce
@@ -25,7 +27,10 @@ from .db import (
 from .engine import run_scan
 from .models import EnforceRequest, EnforceResponse, LayerCreate, LayerUpdate, ScanConfig, ScanResponse
 from .proxy import router as proxy_router
+from .rate_limit import check_rate_limit, check_scan_quota, get_usage
+from .reports import generate_scan_pdf
 from .security import assert_safe_url
+from .tasks import enqueue_scan_job
 
 _MAX_RESPONSE_CHARS = 32_768
 
@@ -47,11 +52,17 @@ async def health() -> dict[str, str]:
     return {"status": "ok"}
 
 
-# ── Scan ──
+# ── Scan (async via Cloud Tasks when available, sync fallback) ──
 
-@app.post("/scan", response_model=ScanResponse)
-async def scan(config: ScanConfig, user: dict = Depends(get_current_user)) -> ScanResponse:
+@app.post("/scan")
+async def scan(config: ScanConfig, user: dict = Depends(check_scan_quota)):
     scan_id = create_scan_record(uid=user["uid"], config=config.model_dump(mode="json"))
+
+    task_name = enqueue_scan_job(scan_id, config.model_dump(mode="json"), user["uid"])
+    if task_name:
+        return {"scan_id": scan_id, "status": "queued"}
+
+    # Sync fallback when Cloud Tasks is not configured
     try:
         result = await run_scan(config)
         update_scan_record(
@@ -60,10 +71,34 @@ async def scan(config: ScanConfig, user: dict = Depends(get_current_user)) -> Sc
             summary=result.summary.model_dump(),
             violations=[v.model_dump() for v in result.violations],
         )
-        return result
+        return {"scan_id": scan_id, "status": "complete", **result.model_dump()}
     except Exception as exc:
         update_scan_record(scan_id, status="failed")
         raise exc
+
+
+@app.post("/scan/worker/{scan_id}")
+async def scan_worker(scan_id: str, request: Request):
+    # Verify this is from Cloud Tasks
+    queue_name = request.headers.get("X-CloudTasks-QueueName")
+    if not queue_name:
+        raise HTTPException(status_code=403, detail="Worker endpoint is internal only")
+
+    body = await request.json()
+    config = ScanConfig.model_validate(body["config"])
+
+    try:
+        result = await run_scan(config)
+        update_scan_record(
+            scan_id,
+            status="complete",
+            summary=result.summary.model_dump(),
+            violations=[v.model_dump() for v in result.violations],
+        )
+    except Exception:
+        update_scan_record(scan_id, status="failed")
+
+    return {"status": "ok"}
 
 
 @app.get("/scans")
@@ -77,6 +112,26 @@ async def get_scan_detail(scan_id: str, user: dict = Depends(get_current_user)):
     if not record:
         raise HTTPException(status_code=404, detail="Scan not found")
     return record
+
+
+@app.get("/scans/{scan_id}/report.pdf")
+async def get_scan_report(scan_id: str, user: dict = Depends(get_current_user)):
+    record = get_scan(scan_id, uid=user["uid"])
+    if not record:
+        raise HTTPException(status_code=404, detail="Scan not found")
+    pdf_bytes = generate_scan_pdf(record)
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="scan-{scan_id}.pdf"'},
+    )
+
+
+# ── Usage ──
+
+@app.get("/usage")
+async def usage_route(user: dict = Depends(get_current_user)):
+    return get_usage(uid=user["uid"])
 
 
 # ── Enforce ──
@@ -112,7 +167,7 @@ def _call_runtime_target_api(target_url: str, prompt: str) -> str:
 
 
 @app.post("/enforce", response_model=EnforceResponse)
-async def enforce_route(payload: EnforceRequest, user: dict = Depends(get_current_user)) -> EnforceResponse:
+async def enforce_route(payload: EnforceRequest, user: dict = Depends(check_rate_limit)) -> EnforceResponse:
     target_url = (str(payload.target_api).strip() if payload.target_api else "") or os.getenv("INTENT_TARGET_API_URL", "").strip()
 
     if target_url:

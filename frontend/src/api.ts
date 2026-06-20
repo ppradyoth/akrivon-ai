@@ -11,7 +11,7 @@ function authHeaders(token: string | null): Record<string, string> {
   return headers;
 }
 
-export async function runScan(config: ScanConfig, token: string | null = null): Promise<ScanResponse> {
+export async function submitScan(config: ScanConfig, token: string | null = null): Promise<{ scan_id: string; status: string }> {
   const response = await fetch(SCAN_ENDPOINT, {
     method: "POST",
     headers: authHeaders(token),
@@ -23,7 +23,25 @@ export async function runScan(config: ScanConfig, token: string | null = null): 
     throw new Error(message || "Scan request failed");
   }
 
-  return (await response.json()) as ScanResponse;
+  return response.json();
+}
+
+export async function pollScan(scanId: string, token: string | null, maxMs = 600_000): Promise<any> {
+  const start = Date.now();
+  while (Date.now() - start < maxMs) {
+    const scan = await getScan(scanId, token);
+    if (scan.status === "complete" || scan.status === "failed") return scan;
+    await new Promise((r) => setTimeout(r, 3000));
+  }
+  throw new Error("Scan timed out");
+}
+
+// Legacy sync wrapper
+export async function runScan(config: ScanConfig, token: string | null = null): Promise<ScanResponse> {
+  const { scan_id, status, ...rest } = await submitScan(config, token);
+  if (status === "complete" && rest.summary) return rest as unknown as ScanResponse;
+  const result = await pollScan(scan_id, token);
+  return result as ScanResponse;
 }
 
 export async function runEnforce(payload: EnforceRequest, token: string | null = null): Promise<EnforceResponse> {
@@ -100,4 +118,18 @@ export async function listLayerRequests(layerId: string, token: string | null): 
   const res = await fetch(`${BASE}/layers/${layerId}/requests`, { headers: authHeaders(token) });
   if (!res.ok) throw new Error("Failed to fetch requests");
   return res.json();
+}
+
+// ── Usage ──
+
+export async function getUsage(token: string | null): Promise<{ plan: string; monthly_tests_used: number; monthly_tests_limit: number }> {
+  const res = await fetch(`${BASE}/usage`, { headers: authHeaders(token) });
+  if (!res.ok) throw new Error("Failed to fetch usage");
+  return res.json();
+}
+
+// ── Reports ──
+
+export function getScanReportUrl(scanId: string): string {
+  return `${BASE}/scans/${scanId}/report.pdf`;
 }

@@ -16,7 +16,15 @@ export interface Analysis {
 }
 
 export interface ViolationRecord {
-  strategy: "RoleTransformation" | "GradualDrift" | "LanguageVariation";
+  strategy:
+    | "RoleTransformation"
+    | "GradualDrift"
+    | "LanguageVariation"
+    | "MultiTurnEscalation"
+    | "EncodingBypass"
+    | "IndirectInjection"
+    | "PersonaInjection"
+    | "PayloadSplitting";
   prompt: string;
   response: string;
   analysis: Analysis;
