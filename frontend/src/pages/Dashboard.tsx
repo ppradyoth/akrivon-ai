@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { signOut } from "firebase/auth";
 import { auth } from "../firebase";
 import { useAuth } from "../hooks/useAuth";
@@ -71,6 +71,21 @@ export default function Dashboard() {
       </div>
 
       <p style={{ color: "var(--clr-muted, #888)", marginBottom: "2rem" }}>{user?.email}</p>
+
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1rem", marginBottom: "2.5rem" }}>
+        <Link to="/intentscan" style={{ padding: "1.25rem", background: "var(--clr-surface, #1a1a2e)", borderRadius: 8, textAlign: "center", textDecoration: "none", color: "inherit", border: "1px solid var(--clr-border, #333)" }}>
+          <div style={{ fontSize: "1.1rem", fontWeight: 600 }}>IntentScan</div>
+          <div style={{ fontSize: "0.8rem", color: "var(--clr-muted, #888)", marginTop: "0.25rem" }}>Run a new scan</div>
+        </Link>
+        <Link to="/scans" style={{ padding: "1.25rem", background: "var(--clr-surface, #1a1a2e)", borderRadius: 8, textAlign: "center", textDecoration: "none", color: "inherit", border: "1px solid var(--clr-border, #333)" }}>
+          <div style={{ fontSize: "1.1rem", fontWeight: 600 }}>Scan History</div>
+          <div style={{ fontSize: "0.8rem", color: "var(--clr-muted, #888)", marginTop: "0.25rem" }}>View past results</div>
+        </Link>
+        <Link to="/layers" style={{ padding: "1.25rem", background: "var(--clr-surface, #1a1a2e)", borderRadius: 8, textAlign: "center", textDecoration: "none", color: "inherit", border: "1px solid var(--clr-border, #333)" }}>
+          <div style={{ fontSize: "1.1rem", fontWeight: 600 }}>Intent Layers</div>
+          <div style={{ fontSize: "0.8rem", color: "var(--clr-muted, #888)", marginTop: "0.25rem" }}>Manage proxy layers</div>
+        </Link>
+      </div>
 
       <h2>API Keys</h2>
 

@@ -12,14 +12,27 @@ _BLOCKED_BY_VALIDATOR = (
 )
 
 
-def enforce(prompt: str, config: dict[str, list[str]], call_api: Callable[[str], str]) -> dict[str, object]:
-    intent = classify_intent(prompt)
+def enforce(
+    prompt: str,
+    config: dict[str, list[str]],
+    call_api: Callable[[str], str],
+    intent_schema: dict | None = None,
+    policy_rules: list[dict] | None = None,
+) -> dict[str, object]:
+    intent = classify_intent(prompt, schema=intent_schema)
 
-    decision = evaluate_policy(
-        intent_label=str(intent["label"]),
-        allowed=config.get("allowed", []),
-        blocked=config.get("blocked", []),
-    )
+    if policy_rules:
+        decision = evaluate_policy(
+            intent_label=str(intent["label"]),
+            rules=policy_rules,
+            confidence=float(intent["confidence"]),
+        )
+    else:
+        decision = evaluate_policy(
+            intent_label=str(intent["label"]),
+            allowed=config.get("allowed", []),
+            blocked=config.get("blocked", []),
+        )
 
     response = route_decision(decision=decision, prompt=prompt, call_api=call_api)
     validation = validate_response(response)
