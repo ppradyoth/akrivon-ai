@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import Layout from "./components/Layout";
+import ProtectedRoute from "./components/ProtectedRoute";
 import About from "./pages/About";
 import Architecture from "./pages/Architecture";
 import Blog from "./pages/Blog";
@@ -9,18 +10,21 @@ import CaseStudies from "./pages/CaseStudies";
 import Changelog from "./pages/Changelog";
 import Contact from "./pages/Contact";
 import Cookies from "./pages/Cookies";
+import Dashboard from "./pages/Dashboard";
 import Demo from "./pages/Demo";
 import Docs from "./pages/Docs";
 import Enforce from "./pages/Enforce";
 import Ethics from "./pages/Ethics";
 import Home from "./pages/Home";
 import HowItWorks from "./pages/HowItWorks";
+import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 import Pricing from "./pages/Pricing";
 import Privacy from "./pages/Privacy";
 import Product from "./pages/Product";
 import Research from "./pages/Research";
 import Security from "./pages/Security";
+import Signup from "./pages/Signup";
 import Terms from "./pages/Terms";
 import Trust from "./pages/Trust";
 import UseCases from "./pages/UseCases";
@@ -41,8 +45,11 @@ export default function App() {
         <Route path="why" element={<Why />} />
         <Route path="why-akrivon" element={<WhyAkrivon />} />
         <Route path="whats-unique" element={<WhatsUnique />} />
-        <Route path="enforce" element={<Enforce />} />
-        <Route path="intentscan" element={<Demo />} />
+        <Route path="login" element={<Login />} />
+        <Route path="signup" element={<Signup />} />
+        <Route path="dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+        <Route path="enforce" element={<ProtectedRoute><Enforce /></ProtectedRoute>} />
+        <Route path="intentscan" element={<ProtectedRoute><Demo /></ProtectedRoute>} />
         <Route path="demo" element={<Navigate to="/intentscan" replace />} />
 
         <Route path="security" element={<Security />} />

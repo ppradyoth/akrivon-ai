@@ -4,10 +4,12 @@ import asyncio
 import os
 
 import httpx
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel, Field
 
 from intent_layer.engine import enforce
+from .auth import create_api_key, delete_api_key, get_current_user, list_api_keys
 from .engine import run_scan
 from .models import EnforceRequest, EnforceResponse, ScanConfig, ScanResponse
 from .security import assert_safe_url
@@ -18,7 +20,7 @@ app = FastAPI(title="AkrivonAI", version="1.0.0")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_origins=os.getenv("ALLOWED_ORIGINS", "http://localhost:5173").split(","),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -31,7 +33,7 @@ async def health() -> dict[str, str]:
 
 
 @app.post("/scan", response_model=ScanResponse)
-async def scan(config: ScanConfig) -> ScanResponse:
+async def scan(config: ScanConfig, user: dict = Depends(get_current_user)) -> ScanResponse:
     return await run_scan(config)
 
 
@@ -71,8 +73,8 @@ def _call_runtime_target_api(target_url: str, prompt: str) -> str:
 
 
 @app.post("/enforce", response_model=EnforceResponse)
-async def enforce_route(payload: EnforceRequest) -> EnforceResponse:
-    target_url = str(payload.target_api).strip() or os.getenv("INTENT_TARGET_API_URL", "").strip()
+async def enforce_route(payload: EnforceRequest, user: dict = Depends(get_current_user)) -> EnforceResponse:
+    target_url = (str(payload.target_api).strip() if payload.target_api else "") or os.getenv("INTENT_TARGET_API_URL", "").strip()
 
     if target_url:
         assert_safe_url(target_url)
@@ -95,3 +97,23 @@ async def enforce_route(payload: EnforceRequest) -> EnforceResponse:
         lambda: enforce(prompt=payload.prompt, config=config, call_api=_proxy_call),
     )
     return EnforceResponse.model_validate(result)
+
+
+class CreateApiKeyRequest(BaseModel):
+    name: str = Field(min_length=1, max_length=100)
+
+
+@app.post("/api-keys")
+async def create_key(body: CreateApiKeyRequest, user: dict = Depends(get_current_user)):
+    return create_api_key(uid=user["uid"], name=body.name)
+
+
+@app.get("/api-keys")
+async def list_keys(user: dict = Depends(get_current_user)):
+    return list_api_keys(uid=user["uid"])
+
+
+@app.delete("/api-keys/{key_id}")
+async def delete_key(key_id: str, user: dict = Depends(get_current_user)):
+    delete_api_key(uid=user["uid"], key_id=key_id)
+    return {"status": "deleted"}

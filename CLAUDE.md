@@ -1,6 +1,12 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+## Defaults (read first)
+- No explanations, no trailing summaries — just make the change
+- No new files unless explicitly asked
+- No comments, no docstrings unless asked
+- Only touch files mentioned in the request
+- No added error handling for impossible scenarios
+- No abstractions beyond what the task requires
 
 ## Project Overview
 
