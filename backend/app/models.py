@@ -47,9 +47,39 @@ class ScanResponse(BaseModel):
     violations: list[ViolationRecord]
 
 
+class IntentCategory(BaseModel):
+    name: str
+    description: str
+
+
+class IntentSchema(BaseModel):
+    categories: list[IntentCategory] = Field(default_factory=list)
+
+
+class PolicyRule(BaseModel):
+    when: dict[str, object] | None = None
+    then: Literal["allow", "block", "clarify"] | None = None
+    default: Literal["allow", "block", "clarify"] | None = None
+    log: bool = False
+
+
 class IntentLayerConfig(BaseModel):
     allowed: list[str] = Field(default_factory=list)
     blocked: list[str] = Field(default_factory=list)
+
+
+class LayerCreate(BaseModel):
+    name: str = Field(min_length=1, max_length=200)
+    target_url: str
+    intent_schema: IntentSchema = Field(default_factory=IntentSchema)
+    policy_rules: list[PolicyRule] = Field(default_factory=lambda: [PolicyRule(default="allow")])
+
+
+class LayerUpdate(BaseModel):
+    name: str | None = None
+    target_url: str | None = None
+    intent_schema: IntentSchema | None = None
+    policy_rules: list[PolicyRule] | None = None
 
 
 class EnforceRequest(BaseModel):

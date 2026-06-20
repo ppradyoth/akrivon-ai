@@ -17,12 +17,17 @@ import Enforce from "./pages/Enforce";
 import Ethics from "./pages/Ethics";
 import Home from "./pages/Home";
 import HowItWorks from "./pages/HowItWorks";
+import LayerCreate from "./pages/LayerCreate";
+import LayerDetail from "./pages/LayerDetail";
+import Layers from "./pages/Layers";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 import Pricing from "./pages/Pricing";
 import Privacy from "./pages/Privacy";
 import Product from "./pages/Product";
 import Research from "./pages/Research";
+import ScanDetail from "./pages/ScanDetail";
+import ScanHistory from "./pages/ScanHistory";
 import Security from "./pages/Security";
 import Signup from "./pages/Signup";
 import Terms from "./pages/Terms";
@@ -48,6 +53,11 @@ export default function App() {
         <Route path="login" element={<Login />} />
         <Route path="signup" element={<Signup />} />
         <Route path="dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+        <Route path="scans" element={<ProtectedRoute><ScanHistory /></ProtectedRoute>} />
+        <Route path="scans/:scanId" element={<ProtectedRoute><ScanDetail /></ProtectedRoute>} />
+        <Route path="layers" element={<ProtectedRoute><Layers /></ProtectedRoute>} />
+        <Route path="layers/new" element={<ProtectedRoute><LayerCreate /></ProtectedRoute>} />
+        <Route path="layers/:layerId" element={<ProtectedRoute><LayerDetail /></ProtectedRoute>} />
         <Route path="enforce" element={<ProtectedRoute><Enforce /></ProtectedRoute>} />
         <Route path="intentscan" element={<ProtectedRoute><Demo /></ProtectedRoute>} />
         <Route path="demo" element={<Navigate to="/intentscan" replace />} />

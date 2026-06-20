@@ -40,3 +40,64 @@ export async function runEnforce(payload: EnforceRequest, token: string | null =
 
   return (await response.json()) as EnforceResponse;
 }
+
+// ── Scans ──
+
+export async function listScans(token: string | null): Promise<any[]> {
+  const res = await fetch(`${BASE}/scans`, { headers: authHeaders(token) });
+  if (!res.ok) throw new Error("Failed to fetch scans");
+  return res.json();
+}
+
+export async function getScan(scanId: string, token: string | null): Promise<any> {
+  const res = await fetch(`${BASE}/scans/${scanId}`, { headers: authHeaders(token) });
+  if (!res.ok) throw new Error("Scan not found");
+  return res.json();
+}
+
+// ── Layers ──
+
+export async function createLayer(data: any, token: string | null): Promise<{ layer_id: string }> {
+  const res = await fetch(`${BASE}/layers`, {
+    method: "POST",
+    headers: authHeaders(token),
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+
+export async function listLayers(token: string | null): Promise<any[]> {
+  const res = await fetch(`${BASE}/layers`, { headers: authHeaders(token) });
+  if (!res.ok) throw new Error("Failed to fetch layers");
+  return res.json();
+}
+
+export async function getLayer(layerId: string, token: string | null): Promise<any> {
+  const res = await fetch(`${BASE}/layers/${layerId}`, { headers: authHeaders(token) });
+  if (!res.ok) throw new Error("Layer not found");
+  return res.json();
+}
+
+export async function updateLayer(layerId: string, data: any, token: string | null): Promise<void> {
+  const res = await fetch(`${BASE}/layers/${layerId}`, {
+    method: "PUT",
+    headers: authHeaders(token),
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error(await res.text());
+}
+
+export async function deleteLayer(layerId: string, token: string | null): Promise<void> {
+  const res = await fetch(`${BASE}/layers/${layerId}`, {
+    method: "DELETE",
+    headers: authHeaders(token),
+  });
+  if (!res.ok) throw new Error("Failed to delete layer");
+}
+
+export async function listLayerRequests(layerId: string, token: string | null): Promise<any[]> {
+  const res = await fetch(`${BASE}/layers/${layerId}/requests`, { headers: authHeaders(token) });
+  if (!res.ok) throw new Error("Failed to fetch requests");
+  return res.json();
+}
