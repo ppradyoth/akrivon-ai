@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
 
 const navItems = [
   { to: "/product", label: "Product" },
@@ -17,6 +18,7 @@ const navItems = [
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const { user, loading } = useAuth();
   const close = () => setIsOpen(false);
 
   return (
@@ -62,6 +64,17 @@ export default function Navbar() {
                 {item.label}
               </NavLink>
             ))}
+            {!loading && (
+              user ? (
+                <NavLink to="/dashboard" className={({ isActive }) => "nav-link nav-link-cta" + (isActive ? " active" : "")} onClick={close}>
+                  Dashboard
+                </NavLink>
+              ) : (
+                <NavLink to="/login" className={({ isActive }) => "nav-link nav-link-cta" + (isActive ? " active" : "")} onClick={close}>
+                  Sign in
+                </NavLink>
+              )
+            )}
           </div>
         </nav>
       </div>

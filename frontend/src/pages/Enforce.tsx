@@ -1,5 +1,6 @@
 import { FormEvent, useState } from "react";
 import { runEnforce } from "../api";
+import { useAuth } from "../hooks/useAuth";
 import Section from "../components/Section";
 import type { EnforceResponse } from "../types";
 
@@ -18,6 +19,7 @@ export default function Enforce() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<EnforceResponse | null>(null);
+  const { getToken } = useAuth();
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
@@ -25,6 +27,7 @@ export default function Enforce() {
     setError(null);
 
     try {
+      const token = await getToken();
       const response = await runEnforce({
         prompt,
         target_api: targetApi,
@@ -32,7 +35,7 @@ export default function Enforce() {
           allowed: splitCsv(allowed),
           blocked: splitCsv(blocked),
         },
-      });
+      }, token);
       setResult(response);
     } catch (err) {
       const message = err instanceof Error ? err.message : "Unable to run enforcement.";

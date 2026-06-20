@@ -54,7 +54,7 @@ class IntentLayerConfig(BaseModel):
 
 class EnforceRequest(BaseModel):
     prompt: str = Field(min_length=1, max_length=10000)
-    target_api: HttpUrl
+    target_api: HttpUrl | None = None
     config: IntentLayerConfig
 
 
