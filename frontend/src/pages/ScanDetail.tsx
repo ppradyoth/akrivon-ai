@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { getScan } from "../api";
+import { getScan, getScanReportUrl } from "../api";
 import { useAuth } from "../hooks/useAuth";
 
 export default function ScanDetail() {
@@ -37,6 +37,7 @@ export default function ScanDetail() {
         <h1>Scan Result</h1>
         <div style={{ display: "flex", gap: "0.75rem" }}>
           <button onClick={downloadJson} className="btn">Download JSON</button>
+          <a href={getScanReportUrl(scanId!)} className="btn" target="_blank" rel="noopener noreferrer">Download PDF</a>
           <Link to="/scans" className="btn">Back to History</Link>
         </div>
       </div>

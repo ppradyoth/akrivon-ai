@@ -10,6 +10,7 @@ import CaseStudies from "./pages/CaseStudies";
 import Changelog from "./pages/Changelog";
 import Contact from "./pages/Contact";
 import Cookies from "./pages/Cookies";
+import Account from "./pages/Account";
 import Dashboard from "./pages/Dashboard";
 import Demo from "./pages/Demo";
 import Docs from "./pages/Docs";
@@ -53,6 +54,7 @@ export default function App() {
         <Route path="login" element={<Login />} />
         <Route path="signup" element={<Signup />} />
         <Route path="dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+        <Route path="account" element={<ProtectedRoute><Account /></ProtectedRoute>} />
         <Route path="scans" element={<ProtectedRoute><ScanHistory /></ProtectedRoute>} />
         <Route path="scans/:scanId" element={<ProtectedRoute><ScanDetail /></ProtectedRoute>} />
         <Route path="layers" element={<ProtectedRoute><Layers /></ProtectedRoute>} />
