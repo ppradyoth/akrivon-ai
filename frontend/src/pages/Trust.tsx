@@ -1,8 +1,10 @@
 import Section from "../components/Section";
+import SEO from "../components/SEO";
 
 export default function Trust() {
   return (
     <>
+      <SEO title="Trust Center" description="How Akrivon AI operationalizes safe AI behavior with transparent controls and accountable reporting." path="/trust" />
       <Section
         eyebrow="Trust"
         title="Trust center for AI behavior assurance"

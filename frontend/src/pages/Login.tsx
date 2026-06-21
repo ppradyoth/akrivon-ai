@@ -25,37 +25,30 @@ export default function Login() {
   };
 
   return (
-    <section className="container" style={{ maxWidth: 420, padding: "4rem 1rem" }}>
-      <h1>Sign in</h1>
-      <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1rem", marginTop: "1.5rem" }}>
-        <label>
-          Email
-          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required style={inputStyle} />
-        </label>
-        <label>
-          Password
-          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required style={inputStyle} />
-        </label>
-        {error && <p style={{ color: "var(--clr-danger, #e74c3c)", margin: 0 }}>{error}</p>}
-        <button type="submit" disabled={loading} className="btn btn-primary" style={{ marginTop: "0.5rem" }}>
-          {loading ? "Signing in..." : "Sign in"}
-        </button>
-      </form>
-      <p style={{ marginTop: "1.5rem", textAlign: "center" }}>
-        Don't have an account? <Link to="/signup">Sign up</Link>
-      </p>
+    <section className="section" style={{ maxWidth: 440, margin: "0 auto", paddingTop: 64 }}>
+      <div className="panel">
+        <div className="panel-header">
+          <h2>Sign in</h2>
+          <p className="panel-subtitle">Access your Akrivon AI dashboard</p>
+        </div>
+        <form onSubmit={handleSubmit} className="form-stack">
+          <div className="field">
+            <label>Email</label>
+            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="you@company.com" />
+          </div>
+          <div className="field">
+            <label>Password</label>
+            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="••••••••" />
+          </div>
+          {error && <p style={{ color: "var(--danger)", fontSize: "0.9rem" }}>{error}</p>}
+          <div className="form-actions">
+            <button type="submit" disabled={loading}>{loading ? "Signing in…" : "Sign in"}</button>
+          </div>
+        </form>
+        <p style={{ marginTop: 16, textAlign: "center", fontSize: "0.9rem", color: "var(--muted)" }}>
+          Don't have an account? <Link to="/signup" style={{ color: "var(--primary)", fontWeight: 600 }}>Sign up</Link>
+        </p>
+      </div>
     </section>
   );
 }
-
-const inputStyle: React.CSSProperties = {
-  display: "block",
-  width: "100%",
-  padding: "0.6rem 0.8rem",
-  marginTop: "0.35rem",
-  borderRadius: 6,
-  border: "1px solid var(--clr-border, #333)",
-  background: "var(--clr-surface, #1a1a2e)",
-  color: "inherit",
-  fontSize: "1rem",
-};

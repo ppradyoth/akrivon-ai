@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /account
+Disallow: /scans
+Disallow: /layers
+Disallow: /enforce
+Disallow: /intentscan
+
+Sitemap: https://akrivon-ai.web.app/sitemap.xml

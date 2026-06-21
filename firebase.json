@@ -1,4 +1,15 @@
 {
+  "functions": [
+    {
+      "source": "backend",
+      "codebase": "default",
+      "runtime": "python311"
+    },
+    {
+      "source": "functions",
+      "codebase": "notifications"
+    }
+  ],
   "hosting": {
     "public": "frontend/dist",
     "ignore": [

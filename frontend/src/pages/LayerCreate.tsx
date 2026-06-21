@@ -59,60 +59,55 @@ export default function LayerCreate() {
   };
 
   return (
-    <section className="container" style={{ padding: "3rem 1rem", maxWidth: 700 }}>
-      <h1>Create Intent Layer</h1>
-      <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1.25rem", marginTop: "1.5rem" }}>
-        <label>
-          Layer Name
-          <input type="text" value={name} onChange={(e) => setName(e.target.value)} required style={inputStyle} placeholder="e.g. Customer Support Bot" />
-        </label>
-        <label>
-          Target API URL
-          <input type="url" value={targetUrl} onChange={(e) => setTargetUrl(e.target.value)} style={inputStyle} placeholder="https://your-ai-api.example.com/chat" />
-        </label>
+    <section className="section" style={{ maxWidth: 720, margin: "0 auto" }}>
+      <h1 style={{ marginBottom: 20 }}>Create Intent Layer</h1>
+      <div className="panel">
+        <form onSubmit={handleSubmit} className="form-stack">
+          <div className="field">
+            <label>Layer Name</label>
+            <input type="text" value={name} onChange={(e) => setName(e.target.value)} required placeholder="e.g. Customer Support Bot" />
+          </div>
+          <div className="field">
+            <label>Target API URL</label>
+            <input type="url" value={targetUrl} onChange={(e) => setTargetUrl(e.target.value)} placeholder="https://your-ai-api.example.com/chat" />
+          </div>
 
-        <fieldset style={{ border: "1px solid var(--clr-border, #333)", borderRadius: 8, padding: "1rem" }}>
-          <legend style={{ fontWeight: 600 }}>Intent Categories</legend>
-          {categories.map((cat, i) => (
-            <div key={i} style={{ display: "flex", gap: "0.5rem", marginBottom: "0.5rem", alignItems: "center" }}>
-              <input type="text" placeholder="name" value={cat.name} onChange={(e) => updateCategory(i, "name", e.target.value)} style={{ ...inputStyle, flex: 1 }} />
-              <input type="text" placeholder="description" value={cat.description} onChange={(e) => updateCategory(i, "description", e.target.value)} style={{ ...inputStyle, flex: 2 }} />
-              <button type="button" onClick={() => removeCategory(i)} className="btn" style={{ fontSize: "0.8rem", color: "var(--clr-danger, #e74c3c)" }}>×</button>
-            </div>
-          ))}
-          <button type="button" onClick={addCategory} className="btn" style={{ fontSize: "0.85rem" }}>+ Add category</button>
-        </fieldset>
+          <fieldset className="form-section">
+            <legend>Intent Categories</legend>
+            {categories.map((cat, i) => (
+              <div key={i} className="field-grid" style={{ gridTemplateColumns: "1fr 2fr auto", alignItems: "end" }}>
+                <div className="field">
+                  <label>Name</label>
+                  <input type="text" placeholder="name" value={cat.name} onChange={(e) => updateCategory(i, "name", e.target.value)} />
+                </div>
+                <div className="field">
+                  <label>Description</label>
+                  <input type="text" placeholder="description" value={cat.description} onChange={(e) => updateCategory(i, "description", e.target.value)} />
+                </div>
+                <button type="button" onClick={() => removeCategory(i)} className="button-secondary" style={{ width: "auto", minHeight: "unset", padding: "8px 12px", color: "var(--danger)" }}>×</button>
+              </div>
+            ))}
+            <button type="button" onClick={addCategory} className="button-secondary" style={{ width: "auto", fontSize: "0.85rem", padding: "6px 14px", minHeight: "unset" }}>+ Add category</button>
+          </fieldset>
 
-        <fieldset style={{ border: "1px solid var(--clr-border, #333)", borderRadius: 8, padding: "1rem" }}>
-          <legend style={{ fontWeight: 600 }}>Policy Rules</legend>
-          <pre style={{ fontSize: "0.8rem", background: "var(--clr-surface, #1a1a2e)", padding: "0.75rem", borderRadius: 6, overflowX: "auto" }}>
-            {JSON.stringify(rules, null, 2)}
-          </pre>
-          <textarea
-            style={{ ...inputStyle, minHeight: 100, fontFamily: "monospace", fontSize: "0.85rem" }}
-            defaultValue={JSON.stringify(rules, null, 2)}
-            onChange={(e) => { try { setRules(JSON.parse(e.target.value)); } catch {} }}
-          />
-          <p style={{ fontSize: "0.75rem", color: "var(--clr-muted, #888)", margin: "0.25rem 0 0" }}>
-            Edit JSON directly. Supported conditions: intent, intent_in, intent_not_in, confidence_gte, confidence_lt. Actions: allow, block, clarify.
-          </p>
-        </fieldset>
+          <fieldset className="form-section">
+            <legend>Policy Rules</legend>
+            <textarea
+              style={{ fontFamily: "ui-monospace, monospace", fontSize: "0.85rem", minHeight: 120 }}
+              defaultValue={JSON.stringify(rules, null, 2)}
+              onChange={(e) => { try { setRules(JSON.parse(e.target.value)); } catch {} }}
+            />
+            <p className="field-hint">
+              Edit JSON directly. Conditions: intent, intent_in, intent_not_in, confidence_gte, confidence_lt. Actions: allow, block, clarify.
+            </p>
+          </fieldset>
 
-        {error && <p style={{ color: "var(--clr-danger, #e74c3c)", margin: 0 }}>{error}</p>}
-        <button type="submit" disabled={loading} className="btn btn-primary">{loading ? "Creating..." : "Create Layer"}</button>
-      </form>
+          {error && <p style={{ color: "var(--danger)", fontSize: "0.9rem" }}>{error}</p>}
+          <div className="form-actions">
+            <button type="submit" disabled={loading}>{loading ? "Creating…" : "Create Layer"}</button>
+          </div>
+        </form>
+      </div>
     </section>
   );
 }
-
-const inputStyle: React.CSSProperties = {
-  display: "block",
-  width: "100%",
-  padding: "0.6rem 0.8rem",
-  marginTop: "0.35rem",
-  borderRadius: 6,
-  border: "1px solid var(--clr-border, #333)",
-  background: "var(--clr-surface, #1a1a2e)",
-  color: "inherit",
-  fontSize: "1rem",
-};

@@ -25,75 +25,74 @@ export default function LayerDetail() {
 
   useEffect(() => { fetch_(); }, [fetch_]);
 
-  if (loading) return <section className="container" style={{ padding: "3rem 1rem" }}>Loading...</section>;
-  if (!layer) return <section className="container" style={{ padding: "3rem 1rem" }}>Layer not found.</section>;
+  if (loading) return <section className="section" style={{ maxWidth: 860, margin: "0 auto" }}><p style={{ color: "var(--muted)" }}>Loading…</p></section>;
+  if (!layer) return <section className="section" style={{ maxWidth: 860, margin: "0 auto" }}><p>Layer not found.</p></section>;
 
   return (
-    <section className="container" style={{ padding: "3rem 1rem", maxWidth: 800 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+    <section className="section" style={{ maxWidth: 860, margin: "0 auto" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
         <h1>{layer.name}</h1>
-        <Link to="/layers" className="btn">Back to Layers</Link>
+        <Link to="/layers" className="button-secondary" style={{ fontSize: "0.85rem" }}>Back to Layers</Link>
       </div>
 
-      <div style={{ padding: "1rem", background: "var(--clr-surface, #1a1a2e)", borderRadius: 8, margin: "1.5rem 0", border: "1px solid var(--clr-accent, #00d4aa)" }}>
-        <p style={{ margin: "0 0 0.5rem", fontWeight: 600 }}>Proxy URL</p>
-        <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+      <div className="status-block status-success" style={{ marginBottom: 24 }}>
+        <p className="status-title">Proxy URL</p>
+        <div style={{ display: "flex", gap: 8, alignItems: "center", marginTop: 6 }}>
           <code style={{ flex: 1, wordBreak: "break-all", fontSize: "0.85rem" }}>{proxyUrl}</code>
-          <button onClick={() => navigator.clipboard.writeText(proxyUrl)} className="btn" style={{ fontSize: "0.8rem" }}>Copy</button>
+          <button onClick={() => navigator.clipboard.writeText(proxyUrl)} className="button-secondary" style={{ width: "auto", fontSize: "0.82rem", padding: "4px 12px", minHeight: "unset" }}>Copy</button>
         </div>
-        <p style={{ fontSize: "0.75rem", color: "var(--clr-muted, #888)", margin: "0.5rem 0 0" }}>
+        <p className="status-copy" style={{ marginTop: 8 }}>
           Point your AI traffic here. Requests are classified, policy-checked, then forwarded to your target.
         </p>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", margin: "1.5rem 0" }}>
-        <div>
+      <div className="card-grid two-col" style={{ marginBottom: 24 }}>
+        <div className="card">
           <h3>Target</h3>
-          <p style={{ fontSize: "0.9rem" }}>{layer.target_url || "Not configured"}</p>
+          <p className="card-description">{layer.target_url || "Not configured"}</p>
         </div>
-        <div>
+        <div className="card">
           <h3>Categories ({(layer.intent_schema?.categories || []).length})</h3>
           {(layer.intent_schema?.categories || []).map((c: any, i: number) => (
-            <p key={i} style={{ fontSize: "0.85rem", margin: "0.2rem 0" }}><strong>{c.name}</strong>: {c.description}</p>
+            <p key={i} style={{ fontSize: "0.88rem", marginTop: 4 }}><strong>{c.name}</strong>: <span style={{ color: "var(--muted)" }}>{c.description}</span></p>
           ))}
         </div>
       </div>
 
-      <h3>Policy Rules</h3>
-      <pre style={{ fontSize: "0.8rem", background: "var(--clr-surface, #1a1a2e)", padding: "0.75rem", borderRadius: 6, overflowX: "auto" }}>
-        {JSON.stringify(layer.policy_rules, null, 2)}
-      </pre>
+      <div className="panel" style={{ marginBottom: 24 }}>
+        <div className="panel-header"><h2>Policy Rules</h2></div>
+        <pre>{JSON.stringify(layer.policy_rules, null, 2)}</pre>
+      </div>
 
-      <h2 style={{ marginTop: "2rem" }}>Recent Requests</h2>
-      {requests.length === 0 ? (
-        <p style={{ color: "var(--clr-muted, #888)" }}>No requests yet. Send traffic to your proxy URL to see activity.</p>
-      ) : (
-        <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "0.75rem" }}>
-          <thead>
-            <tr style={{ textAlign: "left", borderBottom: "1px solid var(--clr-border, #333)" }}>
-              <th style={thStyle}>Time</th>
-              <th style={thStyle}>Intent</th>
-              <th style={thStyle}>Decision</th>
-              <th style={thStyle}>Prompt</th>
-            </tr>
-          </thead>
-          <tbody>
-            {requests.map((r) => (
-              <tr key={r.request_id} style={{ borderBottom: "1px solid var(--clr-border, #222)" }}>
-                <td style={tdStyle}>{new Date(r.created_at).toLocaleTimeString()}</td>
-                <td style={tdStyle}>{r.intent?.label}</td>
-                <td style={{ ...tdStyle, color: r.decision === "block" ? "var(--clr-danger, #e74c3c)" : r.decision === "allow" ? "var(--clr-accent, #00d4aa)" : "var(--clr-muted, #888)" }}>
-                  {r.decision}
-                </td>
-                <td style={{ ...tdStyle, maxWidth: 300, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{r.prompt}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+      <div className="panel">
+        <div className="panel-header"><h2>Recent Requests</h2></div>
+        {requests.length === 0 ? (
+          <p style={{ color: "var(--muted)" }}>No requests yet. Send traffic to your proxy URL to see activity.</p>
+        ) : (
+          <div className="comparison-table-wrap">
+            <table className="comparison-table">
+              <thead>
+                <tr>
+                  <th>Time</th>
+                  <th>Intent</th>
+                  <th>Decision</th>
+                  <th>Prompt</th>
+                </tr>
+              </thead>
+              <tbody>
+                {requests.map((r) => (
+                  <tr key={r.request_id}>
+                    <td>{new Date(r.created_at).toLocaleTimeString()}</td>
+                    <td style={{ fontWeight: 600 }}>{r.intent?.label}</td>
+                    <td><span className={r.decision === "block" ? "cell-no" : r.decision === "allow" ? "cell-yes" : "cell-warn"}>{r.decision}</span></td>
+                    <td style={{ maxWidth: 300, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{r.prompt}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </section>
   );
 }
-
-const thStyle: React.CSSProperties = { padding: "0.5rem 0.5rem 0.5rem 0" };
-const tdStyle: React.CSSProperties = { padding: "0.5rem 0.5rem 0.5rem 0", fontSize: "0.85rem" };
