@@ -1,9 +1,11 @@
 import Card from "../components/Card";
 import Section from "../components/Section";
+import SEO from "../components/SEO";
 
 export default function Security() {
   return (
     <>
+      <SEO title="Security" description="Enterprise security by design. Akrivon protects sensitive prompts, responses, and policy context in high-trust environments." path="/security" />
       <Section
         eyebrow="Security"
         title="Enterprise security by design"

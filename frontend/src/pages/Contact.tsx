@@ -1,8 +1,10 @@
 import Section from "../components/Section";
+import SEO from "../components/SEO";
 
 export default function Contact() {
   return (
     <>
+      <SEO title="Contact" description="Get in touch with Akrivon AI for AI security assessments, architecture reviews, and enterprise onboarding." path="/contact" />
       <Section
         eyebrow="Contact"
         title="Talk to product, security, or sales"

@@ -1,9 +1,11 @@
 import Card from "../components/Card";
 import Section from "../components/Section";
+import SEO from "../components/SEO";
 
 export default function Product() {
   return (
     <>
+      <SEO title="Platform" description="Akrivon AI Behavior QA Platform — validation layer for AI systems that must remain aligned to role, domain, and policy constraints." path="/product" />
       <Section
         eyebrow="Product"
         title="Akrivon AI Behavior QA Platform"

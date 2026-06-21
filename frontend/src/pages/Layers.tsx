@@ -23,23 +23,25 @@ export default function Layers() {
   };
 
   return (
-    <section className="container" style={{ padding: "3rem 1rem", maxWidth: 800 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+    <section className="section" style={{ maxWidth: 900, margin: "0 auto" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
         <h1>Intent Layers</h1>
-        <Link to="/layers/new" className="btn btn-primary">Create Layer</Link>
+        <Link to="/layers/new" className="button-primary" style={{ fontSize: "0.9rem" }}>Create Layer</Link>
       </div>
 
-      {loading ? <p>Loading...</p> : layers.length === 0 ? (
-        <p style={{ color: "var(--clr-muted, #888)", marginTop: "2rem" }}>No layers yet. Create your first Intent Layer to get a proxy URL.</p>
+      {loading ? <p style={{ color: "var(--muted)" }}>Loading…</p> : layers.length === 0 ? (
+        <div className="panel">
+          <p style={{ color: "var(--muted)" }}>No layers yet. <Link to="/layers/new" style={{ color: "var(--primary)", fontWeight: 600 }}>Create your first Intent Layer</Link> to get a proxy URL.</p>
+        </div>
       ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: "1rem", marginTop: "1.5rem" }}>
+        <div style={{ display: "grid", gap: 12 }}>
           {layers.map((l) => (
-            <div key={l.layer_id} style={{ padding: "1rem", background: "var(--clr-surface, #1a1a2e)", borderRadius: 8, border: "1px solid var(--clr-border, #333)" }}>
+            <div key={l.layer_id} className="card">
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <Link to={`/layers/${l.layer_id}`} style={{ fontWeight: 600, fontSize: "1.1rem" }}>{l.name}</Link>
-                <button onClick={() => handleDelete(l.layer_id)} className="btn" style={{ fontSize: "0.8rem", color: "var(--clr-danger, #e74c3c)" }}>Delete</button>
+                <Link to={`/layers/${l.layer_id}`} style={{ fontWeight: 700, fontSize: "1.05rem", color: "var(--text)", textDecoration: "none" }}>{l.name}</Link>
+                <button onClick={() => handleDelete(l.layer_id)} className="button-secondary" style={{ width: "auto", fontSize: "0.82rem", padding: "4px 12px", minHeight: "unset", color: "var(--danger)" }}>Delete</button>
               </div>
-              <p style={{ fontSize: "0.85rem", color: "var(--clr-muted, #888)", margin: "0.5rem 0 0" }}>
+              <p className="card-description" style={{ marginTop: 8 }}>
                 Target: {l.target_url || "Not configured"} · {(l.intent_schema?.categories || []).length} categories · {(l.policy_rules || []).length} rules
               </p>
             </div>

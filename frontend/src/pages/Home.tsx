@@ -1,152 +1,165 @@
 import { Link } from "react-router-dom";
-import Card from "../components/Card";
 import Section from "../components/Section";
+import SEO from "../components/SEO";
+
+const findings = [
+  {
+    target: "Jack & Jill",
+    slug: "jack-jill",
+    type: "AI Recruiting Agent",
+    headline: "14 vulnerabilities across prompt injection, fabricated legal documents, and agent tool hijacking",
+    severity: "7 Critical, 4 High, 3 Medium",
+    detail: "A single resume PDF with hidden text triggered fabricated £180k job offers with visa sponsorship claims — all without any malicious chat input.",
+  },
+  {
+    target: "Priceline",
+    slug: "priceline",
+    type: "AI Travel Assistant (Penny)",
+    headline: "Prompt injection and data exfiltration in customer-facing travel chatbot",
+    severity: "Critical",
+    detail: "The AI assistant could be manipulated to disclose system prompts, internal tool schemas, and process booking data outside intended workflows.",
+  },
+  {
+    target: "Reddit Answers",
+    slug: "reddit-answers",
+    type: "AI Search Feature",
+    headline: "Indirect prompt injection via user-generated content in AI-powered search",
+    severity: "High",
+    detail: "Adversarial content in Reddit posts was surfaced as trusted AI-generated answers, enabling misinformation at scale.",
+  },
+];
 
 export default function Home() {
   return (
     <>
-      <Section
-        eyebrow="Akrivon AI"
-        title="AI doesn't break the way you think."
-        description="Most AI systems do not fail because of attacks. They fail because they quietly stop behaving as intended."
-        className="hero-section home-hero"
-      >
-        <p className="home-hero-callout">
-          Quiet drift is the default failure mode.
-        </p>
-        <div className="hero-actions home-hero-actions">
-          <Link to="/intentscan" className="button-primary">
-            Try Intent Scan
-          </Link>
+      <SEO path="/" />
+      <Section className="hero-section home-hero">
+        <div className="section-header">
+          <h1>We find what your AI security tools miss.</h1>
+          <p className="section-description" style={{ maxWidth: 680 }}>
+            Akrivon is an AI red-teaming firm. We test AI systems the way real attackers do —
+            prompt injection, agent hijacking, data exfiltration, behavioral drift — and deliver
+            evidence your team can act on.
+          </p>
+        </div>
+        <div className="hero-actions home-hero-actions" style={{ marginTop: 24 }}>
+          <Link to="/request" className="button-primary">Request an Assessment</Link>
+          <Link to="/case-studies" className="button-secondary">See Our Work</Link>
+        </div>
+      </Section>
+
+      <Section>
+        <div style={{ display: "flex", gap: 48, flexWrap: "wrap", alignItems: "baseline" }}>
+          <Stat value="45" label="Vulnerabilities found" />
+          <Stat value="9" label="AI products tested" />
+          <Stat value="16" label="Critical findings" />
+          <Stat value="5" label="Attack vectors" />
         </div>
       </Section>
 
       <Section
-        title="The problem most teams miss"
-        description="AI systems drift. Boundaries blur. Behavior expands beyond intent."
-        className="home-problem"
+        title="Real findings from real AI products"
+        description="We don't run automated scans and hand you a PDF. We attack your AI system with the same techniques threat actors use — then show you exactly what broke and why."
+      >
+        <div style={{ display: "grid", gap: 16, marginTop: 8 }}>
+          {findings.map((f) => (
+            <Link
+              key={f.slug}
+              to="/case-studies"
+              style={{ textDecoration: "none", color: "inherit" }}
+            >
+              <div className="card" style={{ transition: "box-shadow 120ms ease" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 16, flexWrap: "wrap" }}>
+                  <div>
+                    <h3 style={{ fontSize: "1.1rem", marginBottom: 4 }}>{f.target}</h3>
+                    <p style={{ fontSize: "0.85rem", color: "var(--muted)" }}>{f.type}</p>
+                  </div>
+                  <span style={{
+                    fontSize: "0.75rem",
+                    fontWeight: 700,
+                    textTransform: "uppercase",
+                    letterSpacing: "0.04em",
+                    color: "var(--danger)",
+                    flexShrink: 0,
+                  }}>
+                    {f.severity}
+                  </span>
+                </div>
+                <p style={{ marginTop: 12, fontWeight: 600, lineHeight: 1.4 }}>{f.headline}</p>
+                <p style={{ marginTop: 8, color: "var(--muted)", fontSize: "0.94rem", lineHeight: 1.6 }}>{f.detail}</p>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </Section>
+
+      <Section
+        title="How an engagement works"
+        description="Three steps from first contact to actionable findings."
+      >
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 24, marginTop: 8 }}>
+          <Step num="1" title="Scope" desc="You tell us what your AI system does, who it serves, and what keeps you up at night. We define the attack surface together." />
+          <Step num="2" title="Attack" desc="We run adversarial testing — prompt injection, indirect injection via documents, agent tool hijacking, behavioral drift probing, data exfiltration attempts — against your live or staging environment." />
+          <Step num="3" title="Report" desc="You get a findings report with severity ratings, reproduction steps, evidence screenshots, and prioritized remediation guidance. We walk your team through every finding." />
+        </div>
+      </Section>
+
+      <Section
+        title="We also build the tools"
+        description="Our red-teaming is backed by purpose-built technology."
       >
         <div className="card-grid two-col">
-          <Card
-            title="It starts with a focused assistant"
-            description="A chatbot is launched for a clear purpose, like support or task completion inside a defined workflow."
-          />
-          <Card
-            title="Then usage shifts"
-            description="Users ask unrelated questions. The assistant responds anyway. A scoped product quietly becomes a general tool."
-          />
-        </div>
-      </Section>
-
-      <Section
-        title="This isn't an attack problem. It's a behavior problem."
-        description="Drift happens naturally over time. Most systems do not catch it while it is still manageable."
-        className="home-insight"
-      >
-        <div className="why-story">
-          <p>Prompts change. Context widens. Edge cases pile up.</p>
-          <p>Without continuous behavior checks, the model starts doing work it was never meant to do.</p>
-        </div>
-      </Section>
-
-      <Section
-        title="Why existing tools fail"
-        description="Most tooling is built for attacks, jailbreaks, and vulnerabilities. That matters, but it is not enough."
-        className="home-gap"
-      >
-        <div className="card-grid two-col">
-          <Card
-            title="What they test"
-            description="Can this model be broken through malicious prompts?"
-          />
-          <Card
-            title="What they miss"
-            description="Is this model still behaving correctly for its intended use case?"
-          />
-        </div>
-      </Section>
-
-      <Section
-        title="Akrivon ensures your AI behaves as intended."
-        description="Define intent. Test behavior. Detect drift before trust breaks."
-        className="home-solution"
-      >
-        <div className="why-story">
-          <p>Akrivon gives teams a clear boundary between in-scope and out-of-scope behavior.</p>
-          <p>You get evidence, not assumptions, about how your system behaves in production-like scenarios.</p>
-        </div>
-      </Section>
-
-      <Section
-        title="Control your AI in production"
-        description="Akrivon is not only a testing platform. It is also a runtime enforcement layer."
-        className="home-capabilities"
-      >
-        <div className="card-grid two-col">
-          <Card
-            title="Inspect intent at runtime"
-            description="Classify each prompt before it reaches your AI system."
-          />
-          <Card
-            title="Allow, block, or clarify in real-time"
-            description="Enforce policy boundaries continuously by placing Akrivon between users and your model."
-          />
-        </div>
-      </Section>
-
-      <Section
-        title="Capabilities built around outcomes"
-        description="Every capability starts with what your team needs to control."
-        className="home-capabilities"
-      >
-        <div className="card-grid three-col">
-          <Card
-            title="Define exactly what your AI should and should not do"
-            description="Set use-case intent, allowed capabilities, and disallowed boundaries in one test profile."
-          />
-          <Card
-            title="See where behavior starts to drift"
-            description="Run strategy-driven tests that pressure role, domain, and scope across realistic user prompts."
-          />
-          <Card
-            title="Fix issues before users discover them"
-            description="Get structured violation evidence with severity and confidence so teams can prioritize remediation."
-          />
-        </div>
-      </Section>
-
-      <Section title="How it works" description="A simple flow for behavior assurance." className="home-flow">
-        <div className="card-grid two-col home-flow-grid">
-          <div className="metric-block">
-            <strong>1. Define use case</strong>
-            <p>Document intended role, domain, and constraints.</p>
+          <div className="card">
+            <h3>IntentScan</h3>
+            <p className="card-description">
+              Automated adversarial probe generation across 8 attack strategies.
+              Tests your AI endpoint for jailbreaks, role drift, encoding bypasses, and indirect injection.
+            </p>
+            <Link to="/intentscan" style={{ display: "inline-block", marginTop: 12, fontSize: "0.9rem", fontWeight: 600, color: "var(--primary)" }}>
+              Try IntentScan →
+            </Link>
           </div>
-          <div className="metric-block">
-            <strong>2. Run behavioral tests</strong>
-            <p>Execute dynamic prompts against your AI endpoint.</p>
-          </div>
-          <div className="metric-block">
-            <strong>3. Detect violations</strong>
-            <p>Identify role drift, capability drift, and domain failures.</p>
-          </div>
-          <div className="metric-block">
-            <strong>4. Control AI in production</strong>
-            <p>Deploy enforcement and control behavior continuously in production.</p>
+          <div className="card">
+            <h3>IntentEnforce</h3>
+            <p className="card-description">
+              Runtime proxy that classifies every prompt before it reaches your AI.
+              Configurable policy rules to allow, block, or flag requests in real-time.
+            </p>
+            <Link to="/enforce" style={{ display: "inline-block", marginTop: 12, fontSize: "0.9rem", fontWeight: 600, color: "var(--primary)" }}>
+              Try IntentEnforce →
+            </Link>
           </div>
         </div>
       </Section>
 
       <Section
-        title="AI shouldn't decide what it becomes. You should."
-        description="Keep your system aligned to intent from first launch to scaled deployment."
+        title="Your AI is live. Is it safe?"
+        description="Get an expert assessment before your users — or attackers — find out."
         className="home-final-cta"
       >
-        <div className="hero-actions home-hero-actions">
-          <Link to="/intentscan" className="button-primary">
-            Run Intent Scan
-          </Link>
+        <div className="hero-actions home-hero-actions" style={{ marginTop: 8 }}>
+          <Link to="/request" className="button-primary">Request an Assessment</Link>
         </div>
       </Section>
     </>
+  );
+}
+
+function Stat({ value, label }: { value: string; label: string }) {
+  return (
+    <div>
+      <div style={{ fontSize: "2rem", fontWeight: 700, lineHeight: 1.1 }}>{value}</div>
+      <div style={{ fontSize: "0.88rem", color: "var(--muted)", marginTop: 4 }}>{label}</div>
+    </div>
+  );
+}
+
+function Step({ num, title, desc }: { num: string; title: string; desc: string }) {
+  return (
+    <div>
+      <div style={{ fontSize: "0.82rem", fontWeight: 700, color: "var(--primary)", marginBottom: 8 }}>Step {num}</div>
+      <h3 style={{ fontSize: "1.1rem", marginBottom: 8 }}>{title}</h3>
+      <p style={{ color: "var(--muted)", fontSize: "0.94rem", lineHeight: 1.6 }}>{desc}</p>
+    </div>
   );
 }

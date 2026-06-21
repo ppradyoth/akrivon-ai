@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 
 interface SectionProps {
-  title: string;
+  title?: string;
   eyebrow?: string;
   description?: string;
   children?: ReactNode;
@@ -14,7 +14,7 @@ export default function Section({ title, eyebrow, description, children, classNa
       {(eyebrow || description || title) && (
         <header className="section-header">
           {eyebrow && <p className="eyebrow">{eyebrow}</p>}
-          <h1>{title}</h1>
+          {title && <h1>{title}</h1>}
           {description && <p className="section-description">{description}</p>}
         </header>
       )}

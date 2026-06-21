@@ -1,4 +1,5 @@
 import Section from "../components/Section";
+import SEO from "../components/SEO";
 
 const requestExample = `{
   "api_url": "https://example.com/assistant",
@@ -55,6 +56,7 @@ const enforceResponseExample = `{
 export default function Docs() {
   return (
     <>
+      <SEO title="Documentation" description="API integration quickstart for Akrivon AI. Connect your AI endpoint, define behavior boundaries, and run structured scans." path="/docs" />
       <Section
         eyebrow="Docs"
         title="API integration quickstart"

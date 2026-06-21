@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import Section from "../components/Section";
+import SEO from "../components/SEO";
 
 const postFiles = import.meta.glob("../blog/posts/*.md", { as: "raw", eager: true });
 
@@ -47,6 +48,11 @@ export default function Blog() {
 
   return (
     <>
+      <SEO
+        title="Blog"
+        description="Perspectives on AI security, prompt injection, agent hijacking, and how AI systems break in production."
+        path="/blog"
+      />
       <Section
         eyebrow="Blog"
         title="Thinking on AI safety and behavior"

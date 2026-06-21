@@ -1,8 +1,14 @@
 import Section from "../components/Section";
+import SEO from "../components/SEO";
 
 export default function About() {
   return (
     <>
+      <SEO
+        title="About"
+        description="Akrivon AI is an AI red-teaming firm helping organizations build AI systems that remain aligned, safe, and accountable in production."
+        path="/about"
+      />
       <Section
         eyebrow="About"
         title="Our mission is trustworthy AI behavior at scale"

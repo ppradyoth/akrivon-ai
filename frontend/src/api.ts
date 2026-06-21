@@ -39,7 +39,7 @@ export async function pollScan(scanId: string, token: string | null, maxMs = 600
 // Legacy sync wrapper
 export async function runScan(config: ScanConfig, token: string | null = null): Promise<ScanResponse> {
   const { scan_id, status, ...rest } = await submitScan(config, token);
-  if (status === "complete" && rest.summary) return rest as unknown as ScanResponse;
+  if (status === "complete" && (rest as any).summary) return rest as unknown as ScanResponse;
   const result = await pollScan(scan_id, token);
   return result as ScanResponse;
 }

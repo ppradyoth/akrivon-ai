@@ -9,12 +9,12 @@ export default function PricingPage() {
       <section className="card-grid">
         <article className="panel">
           <h2>Starter</h2>
-          <p className="price">$49 / month</p>
+          <p className="price">Contact us</p>
           <p>Up to 500 tests per month, 1 environment, email support.</p>
         </article>
         <article className="panel">
           <h2>Growth</h2>
-          <p className="price">$199 / month</p>
+          <p className="price">Contact us</p>
           <p>Up to 5,000 tests, multi-language probes, team collaboration.</p>
         </article>
         <article className="panel">

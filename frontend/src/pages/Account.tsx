@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { signOut } from "firebase/auth";
 import { auth } from "../firebase";
 import { useAuth } from "../hooks/useAuth";
@@ -72,86 +72,86 @@ export default function Account() {
   };
 
   return (
-    <section className="container" style={{ padding: "3rem 1rem", maxWidth: 720 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+    <section className="section" style={{ maxWidth: 760, margin: "0 auto" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
         <h1>Account</h1>
-        <button onClick={handleSignOut} className="btn" style={{ fontSize: "0.85rem" }}>Sign out</button>
+        <button onClick={handleSignOut} className="button-secondary" style={{ fontSize: "0.85rem", padding: "6px 14px", width: "auto" }}>Sign out</button>
       </div>
 
-      <p style={{ color: "var(--clr-muted, #888)", marginBottom: "2rem" }}>{user?.email}</p>
+      <p style={{ color: "var(--muted)", marginBottom: 24 }}>{user?.email}</p>
 
       {usage && (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1rem", marginBottom: "2.5rem" }}>
-          <div style={cardStyle}>
-            <div style={{ fontSize: "0.85rem", color: "var(--clr-muted, #888)" }}>Plan</div>
-            <div style={{ fontSize: "1.3rem", fontWeight: 700, textTransform: "capitalize", marginTop: "0.25rem" }}>{usage.plan}</div>
+        <div className="metric-grid" style={{ marginBottom: 32 }}>
+          <div className="metric-block">
+            <strong style={{ textTransform: "capitalize" }}>{usage.plan}</strong>
+            <p>Plan</p>
           </div>
-          <div style={cardStyle}>
-            <div style={{ fontSize: "0.85rem", color: "var(--clr-muted, #888)" }}>Tests Used</div>
-            <div style={{ fontSize: "1.3rem", fontWeight: 700, marginTop: "0.25rem" }}>{usage.monthly_tests_used.toLocaleString()}</div>
+          <div className="metric-block">
+            <strong>{usage.monthly_tests_used.toLocaleString()}</strong>
+            <p>Tests used</p>
           </div>
-          <div style={cardStyle}>
-            <div style={{ fontSize: "0.85rem", color: "var(--clr-muted, #888)" }}>Monthly Limit</div>
-            <div style={{ fontSize: "1.3rem", fontWeight: 700, marginTop: "0.25rem" }}>{usage.monthly_tests_limit.toLocaleString()}</div>
+          <div className="metric-block">
+            <strong>{usage.monthly_tests_limit.toLocaleString()}</strong>
+            <p>Monthly limit</p>
           </div>
         </div>
       )}
 
-      <h2>API Keys</h2>
-
-      {createdKey && (
-        <div style={{ padding: "1rem", background: "var(--clr-surface, #1a1a2e)", border: "1px solid var(--clr-accent, #00d4aa)", borderRadius: 8, marginBottom: "1.5rem" }}>
-          <p style={{ margin: "0 0 0.5rem", fontWeight: 600 }}>New API key created — copy it now, it won't be shown again:</p>
-          <code style={{ wordBreak: "break-all", fontSize: "0.85rem" }}>{createdKey}</code>
-          <button onClick={() => { navigator.clipboard.writeText(createdKey); }} className="btn" style={{ marginLeft: "1rem", fontSize: "0.8rem" }}>Copy</button>
-          <button onClick={() => setCreatedKey(null)} className="btn" style={{ marginLeft: "0.5rem", fontSize: "0.8rem" }}>Dismiss</button>
+      <div className="panel" style={{ marginBottom: 24 }}>
+        <div className="panel-header">
+          <h2>API Keys</h2>
         </div>
-      )}
 
-      <form onSubmit={createKey} style={{ display: "flex", gap: "0.75rem", marginBottom: "1.5rem" }}>
-        <input
-          type="text"
-          placeholder="Key name (e.g. production)"
-          value={newKeyName}
-          onChange={(e) => setNewKeyName(e.target.value)}
-          required
-          style={{ flex: 1, padding: "0.5rem 0.75rem", borderRadius: 6, border: "1px solid var(--clr-border, #333)", background: "var(--clr-surface, #1a1a2e)", color: "inherit" }}
-        />
-        <button type="submit" disabled={loading} className="btn btn-primary">{loading ? "Creating..." : "Create key"}</button>
-      </form>
+        {createdKey && (
+          <div className="status-block status-success" style={{ marginBottom: 16 }}>
+            <p className="status-title">New API key created — copy it now, it won't be shown again:</p>
+            <code style={{ wordBreak: "break-all", fontSize: "0.85rem", display: "block", marginTop: 8 }}>{createdKey}</code>
+            <div style={{ marginTop: 8, display: "flex", gap: 8 }}>
+              <button onClick={() => navigator.clipboard.writeText(createdKey)} className="button-secondary" style={{ width: "auto", fontSize: "0.82rem", padding: "4px 12px", minHeight: "unset" }}>Copy</button>
+              <button onClick={() => setCreatedKey(null)} className="button-secondary" style={{ width: "auto", fontSize: "0.82rem", padding: "4px 12px", minHeight: "unset" }}>Dismiss</button>
+            </div>
+          </div>
+        )}
 
-      {keys.length === 0 ? (
-        <p style={{ color: "var(--clr-muted, #888)" }}>No API keys yet.</p>
-      ) : (
-        <table style={{ width: "100%", borderCollapse: "collapse" }}>
-          <thead>
-            <tr style={{ textAlign: "left", borderBottom: "1px solid var(--clr-border, #333)" }}>
-              <th style={{ padding: "0.5rem 0" }}>Name</th>
-              <th>Created</th>
-              <th>Last used</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {keys.map((k) => (
-              <tr key={k.key_id} style={{ borderBottom: "1px solid var(--clr-border, #222)" }}>
-                <td style={{ padding: "0.5rem 0" }}>{k.name}</td>
-                <td style={{ fontSize: "0.85rem", color: "var(--clr-muted, #888)" }}>{new Date(k.created_at).toLocaleDateString()}</td>
-                <td style={{ fontSize: "0.85rem", color: "var(--clr-muted, #888)" }}>{k.last_used_at ? new Date(k.last_used_at).toLocaleDateString() : "Never"}</td>
-                <td><button onClick={() => deleteKey(k.key_id)} className="btn" style={{ fontSize: "0.8rem", color: "var(--clr-danger, #e74c3c)" }}>Delete</button></td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+        <form onSubmit={createKey} style={{ display: "flex", gap: 10, marginBottom: 20 }}>
+          <input
+            type="text"
+            placeholder="Key name (e.g. production)"
+            value={newKeyName}
+            onChange={(e) => setNewKeyName(e.target.value)}
+            required
+            style={{ flex: 1 }}
+          />
+          <button type="submit" disabled={loading} style={{ width: "auto", whiteSpace: "nowrap" }}>{loading ? "Creating…" : "Create key"}</button>
+        </form>
+
+        {keys.length === 0 ? (
+          <p style={{ color: "var(--muted)" }}>No API keys yet.</p>
+        ) : (
+          <div className="comparison-table-wrap">
+            <table className="comparison-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Created</th>
+                  <th>Last used</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {keys.map((k) => (
+                  <tr key={k.key_id}>
+                    <td style={{ fontWeight: 600 }}>{k.name}</td>
+                    <td>{new Date(k.created_at).toLocaleDateString()}</td>
+                    <td>{k.last_used_at ? new Date(k.last_used_at).toLocaleDateString() : "Never"}</td>
+                    <td><button onClick={() => deleteKey(k.key_id)} className="button-secondary" style={{ width: "auto", fontSize: "0.82rem", padding: "4px 12px", minHeight: "unset", color: "var(--danger)" }}>Delete</button></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </section>
   );
 }
-
-const cardStyle: React.CSSProperties = {
-  padding: "1.25rem",
-  background: "var(--clr-surface, #1a1a2e)",
-  borderRadius: 8,
-  textAlign: "center",
-  border: "1px solid var(--clr-border, #333)",
-};

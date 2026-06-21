@@ -1,8 +1,10 @@
 import Section from "../components/Section";
+import SEO from "../components/SEO";
 
 export default function Research() {
   return (
     <>
+      <SEO title="Research" description="Applied research in adversarial prompt generation, policy-grounded violation classification, and AI behavior testing methodology." path="/research" />
       <Section
         eyebrow="Research"
         title="Applied research behind the Akrivon strategy model"
