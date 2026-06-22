@@ -762,6 +762,43 @@ p {
   gap: 6px;
 }
 
+.prose-legal {
+  color: #374151;
+  line-height: 1.7;
+  font-size: 0.95rem;
+}
+
+.prose-legal h2 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-top: 32px;
+  margin-bottom: 8px;
+}
+
+.prose-legal h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-top: 20px;
+  margin-bottom: 6px;
+}
+
+.prose-legal p {
+  margin-bottom: 12px;
+}
+
+.prose-legal ul {
+  padding-left: 24px;
+  margin-bottom: 12px;
+  list-style: disc;
+}
+
+.prose-legal ul li {
+  margin-bottom: 6px;
+  line-height: 1.6;
+}
+
 .prose blockquote {
   border-left: 3px solid #bfdbfe;
   padding-left: 16px;
