@@ -7,8 +7,7 @@ export default function ContactPage() {
       </section>
 
       <section className="panel prose">
-        <p>Email: support@akrivon.ai</p>
-        <p>Sales: sales@akrivon.ai</p>
+        <p>Use our <a href="/request">assessment request form</a> to get started.</p>
         <p>Response time: within 1 business day.</p>
       </section>
     </div>

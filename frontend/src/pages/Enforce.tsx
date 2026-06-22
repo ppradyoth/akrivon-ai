@@ -174,7 +174,7 @@ export default function Enforce() {
               <div className="summary-card">
                 <div className="text-block">
                   <h4>Your Enforcement Endpoint</h4>
-                  <pre>https://akrivon.ai/proxy/your-layer-id</pre>
+                  <pre>https://api.example.com/proxy/your-layer-id</pre>
                   <p className="status-copy">
                     Replace your AI endpoint with this to enforce behavior in production.
                   </p>

@@ -83,7 +83,7 @@ export default function Docs() {
         title="Proxy integration"
         description="Route production traffic through the Akrivon enforcement layer before it reaches your target model endpoint."
       >
-        <pre>{`Client -> https://akrivon.ai/proxy/{layer_id} -> target_api`}</pre>
+        <pre>{`Client -> https://api.example.com/proxy/{layer_id} -> target_api`}</pre>
       </Section>
     </>
   );
