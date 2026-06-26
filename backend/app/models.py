@@ -100,6 +100,8 @@ class IntentResult(BaseModel):
 
 class ValidationResult(BaseModel):
     safe: bool
+    category: str | None = None
+    reason: str | None = None
 
 
 class EnforceResponse(BaseModel):

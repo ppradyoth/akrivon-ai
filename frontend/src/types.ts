@@ -59,5 +59,7 @@ export interface EnforceResponse {
   response: string;
   validation: {
     safe: boolean;
+    category?: string | null;
+    reason?: string | null;
   };
 }

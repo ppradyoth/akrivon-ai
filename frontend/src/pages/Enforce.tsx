@@ -161,6 +161,12 @@ export default function Enforce() {
                     <span>Safe</span>
                     <strong>{result.validation.safe ? "true" : "false"}</strong>
                   </p>
+                  {!result.validation.safe && result.validation.reason && (
+                    <p>
+                      <span>Flagged</span>
+                      <strong>{result.validation.reason}</strong>
+                    </p>
+                  )}
                 </div>
 
                 <div className="text-block">
