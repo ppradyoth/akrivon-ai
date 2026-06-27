@@ -62,4 +62,9 @@ export interface EnforceResponse {
     category?: string | null;
     reason?: string | null;
   };
+  input_scan?: {
+    flagged: boolean;
+    category?: string | null;
+    reason?: string | null;
+  } | null;
 }

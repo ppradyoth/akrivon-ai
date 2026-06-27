@@ -104,8 +104,15 @@ class ValidationResult(BaseModel):
     reason: str | None = None
 
 
+class InputScanResult(BaseModel):
+    flagged: bool
+    category: str | None = None
+    reason: str | None = None
+
+
 class EnforceResponse(BaseModel):
     intent: IntentResult
     decision: Literal["block", "allow", "clarify"]
     response: str
     validation: ValidationResult
+    input_scan: InputScanResult | None = None
