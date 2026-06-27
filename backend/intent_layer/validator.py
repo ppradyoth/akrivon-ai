@@ -47,6 +47,18 @@ _PATTERN_GROUPS: list[tuple[str, list[re.Pattern[str]]]] = [
 ]
 
 
+def scan_input(prompt: str) -> dict[str, object]:
+    for category, patterns in _PATTERN_GROUPS:
+        for pattern in patterns:
+            if pattern.search(prompt):
+                return {
+                    "flagged": True,
+                    "category": category,
+                    "reason": f"Input matched a {category.replace('_', ' ')} pattern.",
+                }
+    return {"flagged": False, "category": None, "reason": None}
+
+
 def validate_response(response: str) -> dict[str, object]:
     if len(response) > _MAX_SAFE_LENGTH:
         return {

@@ -167,6 +167,12 @@ export default function Enforce() {
                       <strong>{result.validation.reason}</strong>
                     </p>
                   )}
+                  {result.input_scan?.flagged && result.input_scan.reason && (
+                    <p>
+                      <span>Input scan</span>
+                      <strong>{result.input_scan.reason}</strong>
+                    </p>
+                  )}
                 </div>
 
                 <div className="text-block">
