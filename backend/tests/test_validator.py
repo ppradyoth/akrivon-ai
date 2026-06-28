@@ -1,6 +1,11 @@
 import pytest
 
-from intent_layer.validator import _MAX_SAFE_LENGTH, scan_input, validate_response
+from intent_layer.validator import (
+    _MAX_SAFE_LENGTH,
+    scan_input,
+    scan_output_pii,
+    validate_response,
+)
 
 
 @pytest.mark.parametrize(
@@ -84,3 +89,43 @@ def test_scan_input_flags_injection(text, category):
 )
 def test_scan_input_allows_benign(text):
     assert scan_input(text) == {"flagged": False, "category": None, "reason": None}
+
+
+@pytest.mark.parametrize(
+    "text,pii_type,token",
+    [
+        ("Contact me at jane.doe@example.com please.", "email", "[REDACTED_EMAIL]"),
+        ("My SSN is 123-45-6789 for the form.", "ssn", "[REDACTED_SSN]"),
+        ("Card: 4111 1111 1111 1111 expires soon.", "credit_card", "[REDACTED_CREDIT_CARD]"),
+        ("Call 415-555-0132 after noon.", "phone", "[REDACTED_PHONE]"),
+        ("Server is at 192.168.10.5 internally.", "ip_address", "[REDACTED_IP_ADDRESS]"),
+        ("Key AKIAIOSFODNN7EXAMPLE leaked.", "aws_access_key", "[REDACTED_AWS_ACCESS_KEY]"),
+        ("Use sk-abcdef0123456789ABCDEF now.", "api_key", "[REDACTED_API_KEY]"),
+    ],
+)
+def test_scan_output_pii_detects_and_redacts(text, pii_type, token):
+    result = scan_output_pii(text)
+    assert result["filtered"] is True
+    assert pii_type in result["types"]
+    assert result["redacted_count"] >= 1
+    assert token in str(result["redacted"])
+
+
+def test_scan_output_pii_benign_unchanged():
+    text = "The capital of France is Paris and loops are useful."
+    result = scan_output_pii(text)
+    assert result == {
+        "filtered": False,
+        "types": [],
+        "redacted_count": 0,
+        "redacted": text,
+    }
+
+
+def test_scan_output_pii_multiple_types_counted():
+    text = "Email a@b.com or call 415-555-0132 from 10.0.0.1."
+    result = scan_output_pii(text)
+    assert result["filtered"] is True
+    assert result["redacted_count"] == 3
+    assert set(result["types"]) == {"email", "phone", "ip_address"}
+    assert "a@b.com" not in str(result["redacted"])

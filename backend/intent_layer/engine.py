@@ -5,7 +5,7 @@ from typing import Callable
 from .classifier import classify_intent
 from .policy import evaluate_policy
 from .router import route_decision
-from .validator import scan_input, validate_response
+from .validator import scan_input, scan_output_pii, validate_response
 
 _BLOCKED_BY_VALIDATOR = (
     "This response has been withheld because it did not pass the safety validator."
@@ -30,6 +30,11 @@ def enforce(
             "response": _BLOCKED_BY_INPUT_SCAN,
             "validation": {"safe": True, "category": None, "reason": None},
             "input_scan": input_scan,
+            "output_filter": {
+                "filtered": False,
+                "types": [],
+                "redacted_count": 0,
+            },
         }
 
     intent = classify_intent(prompt, schema=intent_schema)
@@ -52,6 +57,15 @@ def enforce(
 
     if not validation["safe"]:
         response = _BLOCKED_BY_VALIDATOR
+        output_filter = {"filtered": False, "types": [], "redacted_count": 0}
+    else:
+        pii = scan_output_pii(response)
+        response = str(pii["redacted"])
+        output_filter = {
+            "filtered": pii["filtered"],
+            "types": pii["types"],
+            "redacted_count": pii["redacted_count"],
+        }
 
     return {
         "intent": {
@@ -62,4 +76,5 @@ def enforce(
         "response": response,
         "validation": validation,
         "input_scan": input_scan,
+        "output_filter": output_filter,
     }

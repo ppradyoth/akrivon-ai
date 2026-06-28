@@ -67,4 +67,9 @@ export interface EnforceResponse {
     category?: string | null;
     reason?: string | null;
   } | null;
+  output_filter?: {
+    filtered: boolean;
+    types: string[];
+    redacted_count: number;
+  } | null;
 }
