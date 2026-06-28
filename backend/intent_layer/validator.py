@@ -59,6 +59,36 @@ def scan_input(prompt: str) -> dict[str, object]:
     return {"flagged": False, "category": None, "reason": None}
 
 
+_PII_PATTERNS: list[tuple[str, re.Pattern[str]]] = [
+    ("email", re.compile(r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b")),
+    ("ssn", re.compile(r"\b\d{3}-\d{2}-\d{4}\b")),
+    ("credit_card", re.compile(r"\b(?:\d[ -]?){13,16}\b")),
+    ("phone", re.compile(r"\b(?:\+?\d{1,2}[ .-]?)?\(?\d{3}\)?[ .-]?\d{3}[ .-]?\d{4}\b")),
+    ("ip_address", re.compile(r"\b(?:\d{1,3}\.){3}\d{1,3}\b")),
+    ("aws_access_key", re.compile(r"\b(?:AKIA|ASIA)[0-9A-Z]{16}\b")),
+    ("api_key", re.compile(r"\b(?:sk|pk|rk|gh[opsu]|xox[baprs])[-_][A-Za-z0-9]{16,}\b")),
+]
+
+
+def scan_output_pii(response: str) -> dict[str, object]:
+    types: list[str] = []
+    redacted = response
+    redacted_count = 0
+    for label, pattern in _PII_PATTERNS:
+        matches = pattern.findall(redacted)
+        if matches:
+            redacted_count += len(matches)
+            if label not in types:
+                types.append(label)
+            redacted = pattern.sub(f"[REDACTED_{label.upper()}]", redacted)
+    return {
+        "filtered": redacted_count > 0,
+        "types": types,
+        "redacted_count": redacted_count,
+        "redacted": redacted,
+    }
+
+
 def validate_response(response: str) -> dict[str, object]:
     if len(response) > _MAX_SAFE_LENGTH:
         return {

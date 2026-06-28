@@ -110,9 +110,16 @@ class InputScanResult(BaseModel):
     reason: str | None = None
 
 
+class OutputFilterResult(BaseModel):
+    filtered: bool
+    types: list[str] = Field(default_factory=list)
+    redacted_count: int = 0
+
+
 class EnforceResponse(BaseModel):
     intent: IntentResult
     decision: Literal["block", "allow", "clarify"]
     response: str
     validation: ValidationResult
     input_scan: InputScanResult | None = None
+    output_filter: OutputFilterResult | None = None
