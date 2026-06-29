@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+from typing import Callable
 
 _MAX_SAFE_LENGTH = 10_000
 
@@ -59,14 +60,30 @@ def scan_input(prompt: str) -> dict[str, object]:
     return {"flagged": False, "category": None, "reason": None}
 
 
-_PII_PATTERNS: list[tuple[str, re.Pattern[str]]] = [
-    ("email", re.compile(r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b")),
-    ("ssn", re.compile(r"\b\d{3}-\d{2}-\d{4}\b")),
-    ("credit_card", re.compile(r"\b(?:\d[ -]?){13,16}\b")),
-    ("phone", re.compile(r"\b(?:\+?\d{1,2}[ .-]?)?\(?\d{3}\)?[ .-]?\d{3}[ .-]?\d{4}\b")),
-    ("ip_address", re.compile(r"\b(?:\d{1,3}\.){3}\d{1,3}\b")),
-    ("aws_access_key", re.compile(r"\b(?:AKIA|ASIA)[0-9A-Z]{16}\b")),
-    ("api_key", re.compile(r"\b(?:sk|pk|rk|gh[opsu]|xox[baprs])[-_][A-Za-z0-9]{16,}\b")),
+def _luhn_valid(candidate: str) -> bool:
+    digits = [int(c) for c in candidate if c.isdigit()]
+    if not 13 <= len(digits) <= 16:
+        return False
+    total = 0
+    for index, digit in enumerate(reversed(digits)):
+        if index % 2 == 1:
+            digit *= 2
+            if digit > 9:
+                digit -= 9
+        total += digit
+    return total % 10 == 0
+
+
+_PII_PATTERNS: list[tuple[str, re.Pattern[str], Callable[[str], bool] | None]] = [
+    ("private_key", re.compile(r"-----BEGIN (?:[A-Z]+ )?PRIVATE KEY-----.*?-----END (?:[A-Z]+ )?PRIVATE KEY-----", re.S), None),
+    ("jwt", re.compile(r"\beyJ[A-Za-z0-9_-]+\.eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\b"), None),
+    ("email", re.compile(r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b"), None),
+    ("ssn", re.compile(r"\b\d{3}-\d{2}-\d{4}\b"), None),
+    ("credit_card", re.compile(r"\b(?:\d[ -]?){13,16}\b"), _luhn_valid),
+    ("phone", re.compile(r"\b(?:\+?\d{1,2}[ .-]?)?\(?\d{3}\)?[ .-]?\d{3}[ .-]?\d{4}\b"), None),
+    ("ip_address", re.compile(r"\b(?:\d{1,3}\.){3}\d{1,3}\b"), None),
+    ("aws_access_key", re.compile(r"\b(?:AKIA|ASIA)[0-9A-Z]{16}\b"), None),
+    ("api_key", re.compile(r"\b(?:sk|pk|rk|gh[opsu]|xox[baprs])[-_][A-Za-z0-9]{16,}\b"), None),
 ]
 
 
@@ -74,13 +91,22 @@ def scan_output_pii(response: str) -> dict[str, object]:
     types: list[str] = []
     redacted = response
     redacted_count = 0
-    for label, pattern in _PII_PATTERNS:
-        matches = pattern.findall(redacted)
-        if matches:
-            redacted_count += len(matches)
+    for label, pattern, validator in _PII_PATTERNS:
+        placeholder = f"[REDACTED_{label.upper()}]"
+        count = 0
+
+        def _replace(match: re.Match[str]) -> str:
+            nonlocal count
+            if validator is not None and not validator(match.group(0)):
+                return match.group(0)
+            count += 1
+            return placeholder
+
+        redacted = pattern.sub(_replace, redacted)
+        if count:
+            redacted_count += count
             if label not in types:
                 types.append(label)
-            redacted = pattern.sub(f"[REDACTED_{label.upper()}]", redacted)
     return {
         "filtered": redacted_count > 0,
         "types": types,
