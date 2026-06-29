@@ -129,3 +129,37 @@ def test_scan_output_pii_multiple_types_counted():
     assert result["redacted_count"] == 3
     assert set(result["types"]) == {"email", "phone", "ip_address"}
     assert "a@b.com" not in str(result["redacted"])
+
+
+def test_scan_output_pii_luhn_invalid_card_not_redacted():
+    text = "Your order number 1234567890123456 has shipped."
+    result = scan_output_pii(text)
+    assert "credit_card" not in result["types"]
+    assert "1234567890123456" in str(result["redacted"])
+
+
+def test_scan_output_pii_luhn_valid_card_redacted():
+    text = "Pay with 4242 4242 4242 4242 today."
+    result = scan_output_pii(text)
+    assert "credit_card" in result["types"]
+    assert "4242 4242 4242 4242" not in str(result["redacted"])
+
+
+def test_scan_output_pii_detects_jwt():
+    token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+    result = scan_output_pii(f"Here is the session token {token} keep it secret.")
+    assert "jwt" in result["types"]
+    assert token not in str(result["redacted"])
+    assert "[REDACTED_JWT]" in str(result["redacted"])
+
+
+def test_scan_output_pii_detects_private_key():
+    text = (
+        "-----BEGIN RSA PRIVATE KEY-----\n"
+        "MIIBOgIBAAJBAKj34GkxFhD90vcNLYLInFEX6Ppy1tPf9Cnzj4p4WGeKLs1Pt8Q\n"
+        "-----END RSA PRIVATE KEY-----"
+    )
+    result = scan_output_pii(f"leaked:\n{text}\nend")
+    assert "private_key" in result["types"]
+    assert "BEGIN RSA PRIVATE KEY" not in str(result["redacted"])
+    assert "[REDACTED_PRIVATE_KEY]" in str(result["redacted"])
