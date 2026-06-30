@@ -101,6 +101,16 @@ def test_scan_input_allows_benign(text):
         ("Server is at 192.168.10.5 internally.", "ip_address", "[REDACTED_IP_ADDRESS]"),
         ("Key AKIAIOSFODNN7EXAMPLE leaked.", "aws_access_key", "[REDACTED_AWS_ACCESS_KEY]"),
         ("Use sk-abcdef0123456789ABCDEF now.", "api_key", "[REDACTED_API_KEY]"),
+        (
+            "key=AIza" + "b" * 35 + " is live.",
+            "google_api_key",
+            "[REDACTED_GOOGLE_API_KEY]",
+        ),
+        (
+            "token github_pat_11A" + "b" * 79 + " leaked.",
+            "github_pat",
+            "[REDACTED_GITHUB_PAT]",
+        ),
     ],
 )
 def test_scan_output_pii_detects_and_redacts(text, pii_type, token):
