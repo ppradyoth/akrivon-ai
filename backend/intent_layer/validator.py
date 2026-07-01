@@ -81,10 +81,11 @@ _PII_PATTERNS: list[tuple[str, re.Pattern[str], Callable[[str], bool] | None]] =
     ("ssn", re.compile(r"\b\d{3}-\d{2}-\d{4}\b"), None),
     ("credit_card", re.compile(r"\b(?:\d[ -]?){13,16}\b"), _luhn_valid),
     ("phone", re.compile(r"\b(?:\+?\d{1,2}[ .-]?)?\(?\d{3}\)?[ .-]?\d{3}[ .-]?\d{4}\b"), None),
-    ("ip_address", re.compile(r"\b(?:\d{1,3}\.){3}\d{1,3}\b"), None),
+    ("ip_address", re.compile(r"\b(?:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)\.){3}(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)\b"), None),
     ("aws_access_key", re.compile(r"\b(?:AKIA|ASIA)[0-9A-Z]{16}\b"), None),
     ("google_api_key", re.compile(r"\bAIza[0-9A-Za-z_-]{35}\b"), None),
     ("github_pat", re.compile(r"\bgithub_pat_[0-9A-Za-z_]{82}\b"), None),
+    ("anthropic_api_key", re.compile(r"\bsk-ant-[A-Za-z0-9_-]{20,}\b"), None),
     ("api_key", re.compile(r"\b(?:sk|pk|rk|gh[opsu]|xox[baprs])[-_][A-Za-z0-9]{16,}\b"), None),
 ]
 
