@@ -111,6 +111,11 @@ def test_scan_input_allows_benign(text):
             "github_pat",
             "[REDACTED_GITHUB_PAT]",
         ),
+        (
+            "key sk-ant-api03-" + "a" * 40 + " exposed.",
+            "anthropic_api_key",
+            "[REDACTED_ANTHROPIC_API_KEY]",
+        ),
     ],
 )
 def test_scan_output_pii_detects_and_redacts(text, pii_type, token):
@@ -119,6 +124,21 @@ def test_scan_output_pii_detects_and_redacts(text, pii_type, token):
     assert pii_type in result["types"]
     assert result["redacted_count"] >= 1
     assert token in str(result["redacted"])
+
+
+def test_scan_output_pii_invalid_octets_not_redacted_as_ip():
+    text = "Upgrade to version 300.400.500.600 of the parser."
+    result = scan_output_pii(text)
+    assert "ip_address" not in result["types"]
+    assert "300.400.500.600" in str(result["redacted"])
+
+
+def test_scan_output_pii_anthropic_key_not_double_counted():
+    text = "key sk-ant-api03-" + "a" * 40 + " here."
+    result = scan_output_pii(text)
+    assert "anthropic_api_key" in result["types"]
+    assert "api_key" not in result["types"]
+    assert result["redacted_count"] == 1
 
 
 def test_scan_output_pii_benign_unchanged():
