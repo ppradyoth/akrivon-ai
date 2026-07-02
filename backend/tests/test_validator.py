@@ -138,6 +138,11 @@ def test_scan_input_allows_benign(text):
             "slack_token",
             "[REDACTED_SLACK_TOKEN]",
         ),
+        (
+            "key sk-proj-" + "a" * 40 + " committed.",
+            "openai_api_key",
+            "[REDACTED_OPENAI_API_KEY]",
+        ),
     ],
 )
 def test_scan_output_pii_detects_and_redacts(text, pii_type, token):
