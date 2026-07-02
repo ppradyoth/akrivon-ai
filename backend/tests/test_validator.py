@@ -116,6 +116,28 @@ def test_scan_input_allows_benign(text):
             "anthropic_api_key",
             "[REDACTED_ANTHROPIC_API_KEY]",
         ),
+        (
+            "token npm_" + "a" * 36 + " committed.",
+            "npm_token",
+            "[REDACTED_NPM_TOKEN]",
+        ),
+        (
+            "billing key sk_live_" + "a" * 24 + " leaked.",
+            "stripe_key",
+            "[REDACTED_STRIPE_KEY]",
+        ),
+        (
+            "alert to https://hooks.slack.com/services/T00000000/B00000000/"
+            + "X" * 24
+            + " posted.",
+            "slack_webhook",
+            "[REDACTED_SLACK_WEBHOOK]",
+        ),
+        (
+            "bot xoxb-2101234567-2101234567890-AbCdEfGhIjKlMnOpQr in config.",
+            "slack_token",
+            "[REDACTED_SLACK_TOKEN]",
+        ),
     ],
 )
 def test_scan_output_pii_detects_and_redacts(text, pii_type, token):
@@ -124,6 +146,14 @@ def test_scan_output_pii_detects_and_redacts(text, pii_type, token):
     assert pii_type in result["types"]
     assert result["redacted_count"] >= 1
     assert token in str(result["redacted"])
+
+
+def test_scan_output_pii_slack_token_labeled_not_phone():
+    text = "leaked bot token xoxb-2101234567-2101234567890-AbCdEfGhIjKlMnOpQr here."
+    result = scan_output_pii(text)
+    assert "slack_token" in result["types"]
+    assert "phone" not in result["types"]
+    assert "xoxb-" not in str(result["redacted"])
 
 
 def test_scan_output_pii_invalid_octets_not_redacted_as_ip():
