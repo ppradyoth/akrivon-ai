@@ -143,6 +143,21 @@ def test_scan_input_allows_benign(text):
             "openai_api_key",
             "[REDACTED_OPENAI_API_KEY]",
         ),
+        (
+            "token glpat-" + "a" * 20 + " leaked in CI.",
+            "gitlab_pat",
+            "[REDACTED_GITLAB_PAT]",
+        ),
+        (
+            "mailer key SG." + "a" * 22 + "." + "b" * 43 + " exposed.",
+            "sendgrid_key",
+            "[REDACTED_SENDGRID_KEY]",
+        ),
+        (
+            "twilio SK" + "0123456789abcdef" * 2 + " in config.",
+            "twilio_key",
+            "[REDACTED_TWILIO_KEY]",
+        ),
     ],
 )
 def test_scan_output_pii_detects_and_redacts(text, pii_type, token):
