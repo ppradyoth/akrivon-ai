@@ -1,9 +1,22 @@
 from __future__ import annotations
 
 import re
+import unicodedata
 from typing import Callable
 
 _MAX_SAFE_LENGTH = 10_000
+
+# Invisible / zero-width characters attackers splice inside keywords to defeat
+# literal matching: "i​gnore previous instructions" renders identically to a
+# human but breaks the regex token. Stripped before scanning, paired with an NFKC
+# fold that collapses fullwidth and other compatibility homoglyphs back to ASCII.
+_INVISIBLE_CHARS = dict.fromkeys(
+    [0x200B, 0x200C, 0x200D, 0x200E, 0x200F, 0x2060, 0xFEFF, 0x00AD]
+)
+
+
+def _normalize_for_scan(text: str) -> str:
+    return unicodedata.normalize("NFKC", text.translate(_INVISIBLE_CHARS))
 
 # Categorized patterns that suggest the response is attempting prompt injection,
 # role subversion, or system-prompt exfiltration
@@ -49,6 +62,7 @@ _PATTERN_GROUPS: list[tuple[str, list[re.Pattern[str]]]] = [
 
 
 def scan_input(prompt: str) -> dict[str, object]:
+    prompt = _normalize_for_scan(prompt)
     for category, patterns in _PATTERN_GROUPS:
         for pattern in patterns:
             if pattern.search(prompt):
