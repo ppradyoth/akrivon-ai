@@ -147,9 +147,10 @@ def validate_response(response: str) -> dict[str, object]:
             "category": "length",
             "reason": f"Response exceeds the {_MAX_SAFE_LENGTH}-character safety limit.",
         }
+    normalized = _normalize_for_scan(response)
     for category, patterns in _PATTERN_GROUPS:
         for pattern in patterns:
-            if pattern.search(response):
+            if pattern.search(normalized):
                 return {
                     "safe": False,
                     "category": category,
