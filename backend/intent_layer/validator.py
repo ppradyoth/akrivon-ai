@@ -14,9 +14,33 @@ _INVISIBLE_CHARS = dict.fromkeys(
     [0x200B, 0x200C, 0x200D, 0x200E, 0x200F, 0x2060, 0xFEFF, 0x00AD]
 )
 
+# Cyrillic and Greek homoglyphs of Latin letters. NFKC does NOT fold these — a
+# Cyrillic "о" (U+043E) and a Latin "o" are distinct codepoints under any
+# normalization form — so "ignоre previous instructions" (one Cyrillic letter)
+# sails past every injection pattern. This curated map of the confusables that
+# appear in the injection keywords folds them back to ASCII before matching.
+_CONFUSABLES = {
+    # Cyrillic lowercase → Latin
+    "а": "a", "е": "e", "о": "o", "р": "p", "с": "c", "у": "y", "х": "x",
+    "і": "i", "ј": "j", "ѕ": "s", "ԁ": "d", "һ": "h", "ԛ": "q", "ѡ": "w",
+    "т": "t",
+    # Cyrillic uppercase → Latin
+    "А": "A", "В": "B", "Е": "E", "К": "K", "М": "M", "Н": "H", "О": "O",
+    "Р": "P", "С": "C", "Т": "T", "Х": "X", "У": "Y", "І": "I", "Ѕ": "S",
+    "Ј": "J",
+    # Greek lowercase → Latin
+    "α": "a", "ο": "o", "ρ": "p", "ε": "e", "ι": "i", "ν": "v", "υ": "u",
+    "κ": "k", "τ": "t",
+    # Greek uppercase → Latin
+    "Α": "A", "Β": "B", "Ε": "E", "Ζ": "Z", "Η": "H", "Ι": "I", "Κ": "K",
+    "Μ": "M", "Ν": "N", "Ο": "O", "Ρ": "P", "Τ": "T", "Υ": "Y", "Χ": "X",
+}
+_CONFUSABLES_TABLE = str.maketrans(_CONFUSABLES)
+
 
 def _normalize_for_scan(text: str) -> str:
-    return unicodedata.normalize("NFKC", text.translate(_INVISIBLE_CHARS))
+    folded = text.translate(_INVISIBLE_CHARS).translate(_CONFUSABLES_TABLE)
+    return unicodedata.normalize("NFKC", folded)
 
 # Categorized patterns that suggest the response is attempting prompt injection,
 # role subversion, or system-prompt exfiltration
