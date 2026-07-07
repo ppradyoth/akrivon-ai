@@ -23,7 +23,21 @@ def test_blocked_ips(addr):
     assert _is_blocked_ip(addr) is True
 
 
-@pytest.mark.parametrize("addr", ["8.8.8.8", "1.1.1.1", "93.184.216.34", "2606:2800:220:1:248:1893:25c8:1946"])
+@pytest.mark.parametrize(
+    "addr",
+    [
+        "::ffff:127.0.0.1",
+        "::ffff:10.0.0.1",
+        "::ffff:169.254.169.254",
+        "::ffff:192.168.1.1",
+        "::ffff:100.64.0.1",
+    ],
+)
+def test_ipv4_mapped_ipv6_blocked(addr):
+    assert _is_blocked_ip(addr) is True
+
+
+@pytest.mark.parametrize("addr", ["8.8.8.8", "1.1.1.1", "93.184.216.34", "2606:2800:220:1:248:1893:25c8:1946", "::ffff:8.8.8.8"])
 def test_allowed_ips(addr):
     assert _is_blocked_ip(addr) is False
 
