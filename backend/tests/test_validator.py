@@ -193,6 +193,16 @@ def test_scan_input_benign_cyrillic_text_not_flagged():
             "twilio_key",
             "[REDACTED_TWILIO_KEY]",
         ),
+        (
+            "model token hf_" + "a" * 34 + " leaked.",
+            "huggingface_token",
+            "[REDACTED_HUGGINGFACE_TOKEN]",
+        ),
+        (
+            "inference key r8_" + "A" * 37 + " exposed.",
+            "replicate_token",
+            "[REDACTED_REPLICATE_TOKEN]",
+        ),
     ],
 )
 def test_scan_output_pii_detects_and_redacts(text, pii_type, token):
@@ -201,6 +211,14 @@ def test_scan_output_pii_detects_and_redacts(text, pii_type, token):
     assert pii_type in result["types"]
     assert result["redacted_count"] >= 1
     assert token in str(result["redacted"])
+
+
+def test_scan_output_pii_short_ai_tokens_not_redacted():
+    text = "prefix hf_short and r8_tiny are not real tokens."
+    result = scan_output_pii(text)
+    assert "huggingface_token" not in result["types"]
+    assert "replicate_token" not in result["types"]
+    assert result["redacted"] == text
 
 
 def test_scan_output_pii_slack_token_labeled_not_phone():

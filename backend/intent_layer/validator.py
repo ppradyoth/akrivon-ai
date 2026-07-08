@@ -132,6 +132,8 @@ _PII_PATTERNS: list[tuple[str, re.Pattern[str], Callable[[str], bool] | None]] =
     ("twilio_key", re.compile(r"\bSK[0-9a-fA-F]{32}\b"), None),
     ("anthropic_api_key", re.compile(r"\bsk-ant-[A-Za-z0-9_-]{20,}\b"), None),
     ("openai_api_key", re.compile(r"\bsk-(?:proj|svcacct|admin)-[A-Za-z0-9_-]{20,}\b"), None),
+    ("huggingface_token", re.compile(r"\bhf_[0-9A-Za-z]{34}\b"), None),
+    ("replicate_token", re.compile(r"\br8_[A-Za-z0-9]{35,40}\b"), None),
     ("api_key", re.compile(r"\b(?:sk|pk|rk|gh[opsu]|xox[baprs])[-_][A-Za-z0-9]{16,}\b"), None),
 ]
 
