@@ -134,6 +134,8 @@ _PII_PATTERNS: list[tuple[str, re.Pattern[str], Callable[[str], bool] | None]] =
     ("openai_api_key", re.compile(r"\bsk-(?:proj|svcacct|admin)-[A-Za-z0-9_-]{20,}\b"), None),
     ("huggingface_token", re.compile(r"\bhf_[0-9A-Za-z]{34}\b"), None),
     ("replicate_token", re.compile(r"\br8_[A-Za-z0-9]{35,40}\b"), None),
+    ("perplexity_api_key", re.compile(r"\bpplx-[A-Za-z0-9]{48}\b"), None),
+    ("postman_api_key", re.compile(r"\bPMAK-[a-fA-F0-9]{24}-[a-fA-F0-9]{34}\b"), None),
     ("api_key", re.compile(r"\b(?:sk|pk|rk|gh[opsu]|xox[baprs])[-_][A-Za-z0-9]{16,}\b"), None),
 ]
 
