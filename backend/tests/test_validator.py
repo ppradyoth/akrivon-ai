@@ -203,6 +203,16 @@ def test_scan_input_benign_cyrillic_text_not_flagged():
             "replicate_token",
             "[REDACTED_REPLICATE_TOKEN]",
         ),
+        (
+            "search key pplx-" + "a" * 48 + " leaked.",
+            "perplexity_api_key",
+            "[REDACTED_PERPLEXITY_API_KEY]",
+        ),
+        (
+            "collection token PMAK-" + "0" * 24 + "-" + "a" * 34 + " committed.",
+            "postman_api_key",
+            "[REDACTED_POSTMAN_API_KEY]",
+        ),
     ],
 )
 def test_scan_output_pii_detects_and_redacts(text, pii_type, token):
@@ -218,6 +228,14 @@ def test_scan_output_pii_short_ai_tokens_not_redacted():
     result = scan_output_pii(text)
     assert "huggingface_token" not in result["types"]
     assert "replicate_token" not in result["types"]
+    assert result["redacted"] == text
+
+
+def test_scan_output_pii_short_platform_tokens_not_redacted():
+    text = "prefix pplx-tooshort and PMAK-1234 are not real tokens."
+    result = scan_output_pii(text)
+    assert "perplexity_api_key" not in result["types"]
+    assert "postman_api_key" not in result["types"]
     assert result["redacted"] == text
 
 
