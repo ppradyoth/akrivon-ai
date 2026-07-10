@@ -213,6 +213,26 @@ def test_scan_input_benign_cyrillic_text_not_flagged():
             "postman_api_key",
             "[REDACTED_POSTMAN_API_KEY]",
         ),
+        (
+            "token ghp_" + "A" * 36 + " leaked.",
+            "github_token",
+            "[REDACTED_GITHUB_TOKEN]",
+        ),
+        (
+            "refresh ghr_" + "b" * 36 + " exposed.",
+            "github_token",
+            "[REDACTED_GITHUB_TOKEN]",
+        ),
+        (
+            "ci key dapi" + "0123456789abcdef" * 2 + " committed.",
+            "databricks_token",
+            "[REDACTED_DATABRICKS_TOKEN]",
+        ),
+        (
+            "sharded dapi" + "a" * 32 + "-2 in notebook.",
+            "databricks_token",
+            "[REDACTED_DATABRICKS_TOKEN]",
+        ),
     ],
 )
 def test_scan_output_pii_detects_and_redacts(text, pii_type, token):
@@ -236,6 +256,22 @@ def test_scan_output_pii_short_platform_tokens_not_redacted():
     result = scan_output_pii(text)
     assert "perplexity_api_key" not in result["types"]
     assert "postman_api_key" not in result["types"]
+    assert result["redacted"] == text
+
+
+def test_scan_output_pii_github_refresh_token_redacted_not_generic():
+    text = "leaked refresh token ghr_" + "c" * 36 + " here."
+    result = scan_output_pii(text)
+    assert "github_token" in result["types"]
+    assert "api_key" not in result["types"]
+    assert "[REDACTED_GITHUB_TOKEN]" in str(result["redacted"])
+
+
+def test_scan_output_pii_short_infra_tokens_not_redacted():
+    text = "prefix ghp_short and dapiabcdef are not real tokens."
+    result = scan_output_pii(text)
+    assert "github_token" not in result["types"]
+    assert "databricks_token" not in result["types"]
     assert result["redacted"] == text
 
 

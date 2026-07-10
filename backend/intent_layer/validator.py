@@ -125,6 +125,7 @@ _PII_PATTERNS: list[tuple[str, re.Pattern[str], Callable[[str], bool] | None]] =
     ("aws_access_key", re.compile(r"\b(?:AKIA|ASIA)[0-9A-Z]{16}\b"), None),
     ("google_api_key", re.compile(r"\bAIza[0-9A-Za-z_-]{35}\b"), None),
     ("github_pat", re.compile(r"\bgithub_pat_[0-9A-Za-z_]{82}\b"), None),
+    ("github_token", re.compile(r"\b(?:ghp|gho|ghu|ghs|ghr)_[0-9A-Za-z]{36}\b"), None),
     ("npm_token", re.compile(r"\bnpm_[A-Za-z0-9]{36}\b"), None),
     ("stripe_key", re.compile(r"\b(?:sk|pk|rk)_(?:live|test)_[A-Za-z0-9]{16,}\b"), None),
     ("gitlab_pat", re.compile(r"\bglpat-[A-Za-z0-9_-]{20}\b"), None),
@@ -136,6 +137,7 @@ _PII_PATTERNS: list[tuple[str, re.Pattern[str], Callable[[str], bool] | None]] =
     ("replicate_token", re.compile(r"\br8_[A-Za-z0-9]{35,40}\b"), None),
     ("perplexity_api_key", re.compile(r"\bpplx-[A-Za-z0-9]{48}\b"), None),
     ("postman_api_key", re.compile(r"\bPMAK-[a-fA-F0-9]{24}-[a-fA-F0-9]{34}\b"), None),
+    ("databricks_token", re.compile(r"\bdapi[a-f0-9]{32}(?:-\d)?\b"), None),
     ("api_key", re.compile(r"\b(?:sk|pk|rk|gh[opsu]|xox[baprs])[-_][A-Za-z0-9]{16,}\b"), None),
 ]
 
