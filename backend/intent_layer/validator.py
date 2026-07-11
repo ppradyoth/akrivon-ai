@@ -10,8 +10,18 @@ _MAX_SAFE_LENGTH = 10_000
 # literal matching: "i​gnore previous instructions" renders identically to a
 # human but breaks the regex token. Stripped before scanning, paired with an NFKC
 # fold that collapses fullwidth and other compatibility homoglyphs back to ASCII.
+# NFKC does NOT remove bidi controls, invisible math operators, interlinear
+# annotation, or Unicode tag characters, so each is deleted explicitly here.
 _INVISIBLE_CHARS = dict.fromkeys(
-    [0x200B, 0x200C, 0x200D, 0x200E, 0x200F, 0x2060, 0xFEFF, 0x00AD]
+    [
+        0x200B, 0x200C, 0x200D, 0x200E, 0x200F, 0x2060, 0xFEFF, 0x00AD,
+        0x061C, 0x180E,
+        0x202A, 0x202B, 0x202C, 0x202D, 0x202E,
+        0x2061, 0x2062, 0x2063, 0x2064,
+        0x2066, 0x2067, 0x2068, 0x2069,
+        0xFFF9, 0xFFFA, 0xFFFB,
+        *range(0xE0000, 0xE0080),
+    ]
 )
 
 # Cyrillic and Greek homoglyphs of Latin letters. NFKC does NOT fold these — a
