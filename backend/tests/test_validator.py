@@ -215,6 +215,11 @@ def test_scan_input_benign_cyrillic_text_not_flagged():
             "[REDACTED_PERPLEXITY_API_KEY]",
         ),
         (
+            "inference key gsk_" + "A" * 52 + " leaked.",
+            "groq_api_key",
+            "[REDACTED_GROQ_API_KEY]",
+        ),
+        (
             "collection token PMAK-" + "0" * 24 + "-" + "a" * 34 + " committed.",
             "postman_api_key",
             "[REDACTED_POSTMAN_API_KEY]",
@@ -263,6 +268,21 @@ def test_scan_output_pii_short_platform_tokens_not_redacted():
     assert "perplexity_api_key" not in result["types"]
     assert "postman_api_key" not in result["types"]
     assert result["redacted"] == text
+
+
+def test_scan_output_pii_short_groq_token_not_redacted():
+    text = "prefix gsk_short is not a real token."
+    result = scan_output_pii(text)
+    assert "groq_api_key" not in result["types"]
+    assert result["redacted"] == text
+
+
+def test_scan_output_pii_groq_key_not_double_counted():
+    text = "inference key gsk_" + "b" * 52 + " here."
+    result = scan_output_pii(text)
+    assert "groq_api_key" in result["types"]
+    assert "api_key" not in result["types"]
+    assert result["redacted_count"] == 1
 
 
 def test_scan_output_pii_github_refresh_token_redacted_not_generic():
