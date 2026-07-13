@@ -149,6 +149,7 @@ _PII_PATTERNS: list[tuple[str, re.Pattern[str], Callable[[str], bool] | None]] =
     ("perplexity_api_key", re.compile(r"\bpplx-[A-Za-z0-9]{48}\b"), None),
     ("postman_api_key", re.compile(r"\bPMAK-[a-fA-F0-9]{24}-[a-fA-F0-9]{34}\b"), None),
     ("databricks_token", re.compile(r"\bdapi[a-f0-9]{32}(?:-\d)?\b"), None),
+    ("openrouter_api_key", re.compile(r"\bsk-or-v1-[a-f0-9]{64}\b"), None),
     ("api_key", re.compile(r"\b(?:sk|pk|rk|gh[opsu]|xox[baprs])[-_][A-Za-z0-9]{16,}\b"), None),
 ]
 

@@ -244,6 +244,11 @@ def test_scan_input_benign_cyrillic_text_not_flagged():
             "databricks_token",
             "[REDACTED_DATABRICKS_TOKEN]",
         ),
+        (
+            "gateway key sk-or-v1-" + "a" * 64 + " leaked.",
+            "openrouter_api_key",
+            "[REDACTED_OPENROUTER_API_KEY]",
+        ),
     ],
 )
 def test_scan_output_pii_detects_and_redacts(text, pii_type, token):
@@ -299,6 +304,21 @@ def test_scan_output_pii_short_infra_tokens_not_redacted():
     assert "github_token" not in result["types"]
     assert "databricks_token" not in result["types"]
     assert result["redacted"] == text
+
+
+def test_scan_output_pii_short_openrouter_token_not_redacted():
+    text = "prefix sk-or-v1-abc123 is not a real key."
+    result = scan_output_pii(text)
+    assert "openrouter_api_key" not in result["types"]
+    assert result["redacted"] == text
+
+
+def test_scan_output_pii_openrouter_key_redacted_not_generic():
+    text = "gateway key sk-or-v1-" + "f" * 64 + " here."
+    result = scan_output_pii(text)
+    assert "openrouter_api_key" in result["types"]
+    assert "api_key" not in result["types"]
+    assert result["redacted_count"] == 1
 
 
 def test_scan_output_pii_slack_token_labeled_not_phone():
