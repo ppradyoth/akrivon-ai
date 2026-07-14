@@ -50,7 +50,12 @@ _CONFUSABLES_TABLE = str.maketrans(_CONFUSABLES)
 
 def _normalize_for_scan(text: str) -> str:
     folded = text.translate(_INVISIBLE_CHARS).translate(_CONFUSABLES_TABLE)
-    return unicodedata.normalize("NFKC", folded)
+    # Strip combining marks so "ígnore" (i + U+0301) folds to "ignore". NFKC alone
+    # composes the mark into a precomposed letter (í = U+00ED) that no injection
+    # pattern matches, so decompose (NFKD), drop nonspacing marks, then recompose.
+    decomposed = unicodedata.normalize("NFKD", folded)
+    stripped = "".join(ch for ch in decomposed if not unicodedata.combining(ch))
+    return unicodedata.normalize("NFKC", stripped)
 
 # Categorized patterns that suggest the response is attempting prompt injection,
 # role subversion, or system-prompt exfiltration
