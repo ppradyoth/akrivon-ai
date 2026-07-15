@@ -63,8 +63,8 @@ _PATTERN_GROUPS: list[tuple[str, list[re.Pattern[str]]]] = [
     (
         "instruction_override",
         [
-            re.compile(r"ignore\s+(all\s+)?(previous|prior|above)\s+instructions", re.I),
-            re.compile(r"disregard\s+(all\s+)?(previous|prior|above)\s+(instructions|context)", re.I),
+            re.compile(r"ignore\s+(?:(?:all|the|any|your|my|these|those)\s+){0,2}(previous|prior|earlier|above|preceding)\s+(instructions?|prompts?|directions?|context|messages?)", re.I),
+            re.compile(r"disregard\s+(?:(?:all|the|any|your|my|these|those)\s+){0,2}(previous|prior|earlier|above|preceding)\s+(instructions?|prompts?|directions?|context|messages?)", re.I),
             re.compile(r"forget\s+(everything|all)\s+(you\s+were\s+)?(told|instructed)", re.I),
             re.compile(r"new\s+instructions?\s*:", re.I),
             re.compile(r"override\s+(the\s+)?(system|safety)\s+(prompt|settings|guidelines)", re.I),
