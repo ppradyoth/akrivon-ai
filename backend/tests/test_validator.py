@@ -268,6 +268,11 @@ def test_scan_input_benign_accented_text_not_flagged():
             "openrouter_api_key",
             "[REDACTED_OPENROUTER_API_KEY]",
         ),
+        (
+            "oauth secret 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 committed.",
+            "google_oauth_client_secret",
+            "[REDACTED_GOOGLE_OAUTH_CLIENT_SECRET]",
+        ),
     ],
 )
 def test_scan_output_pii_detects_and_redacts(text, pii_type, token):
@@ -337,6 +342,22 @@ def test_scan_output_pii_openrouter_key_redacted_not_generic():
     result = scan_output_pii(text)
     assert "openrouter_api_key" in result["types"]
     assert "api_key" not in result["types"]
+    assert result["redacted_count"] == 1
+
+
+def test_scan_output_pii_short_google_oauth_secret_not_redacted():
+    text = "prefix GOCSPX-tooshort is not a real client secret."
+    result = scan_output_pii(text)
+    assert "google_oauth_client_secret" not in result["types"]
+    assert result["redacted"] == text
+
+
+def test_scan_output_pii_google_oauth_secret_redacted_not_generic():
+    text = "leaked client secret GOCSPX-" + "a" * 28 + " here."
+    result = scan_output_pii(text)
+    assert "google_oauth_client_secret" in result["types"]
+    assert "api_key" not in result["types"]
+    assert "google_api_key" not in result["types"]
     assert result["redacted_count"] == 1
 
 
