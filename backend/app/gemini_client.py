@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import os
 
-import google.generativeai as genai
 from dotenv import load_dotenv
 from fastapi import HTTPException
 
@@ -15,6 +14,8 @@ _model = None
 def _get_model():
     global _model
     if _model is None:
+        import google.generativeai as genai
+
         api_key = os.getenv("GEMINI_API_KEY", "").strip()
         if not api_key:
             raise HTTPException(status_code=500, detail="GEMINI_API_KEY is not configured")

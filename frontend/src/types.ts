@@ -59,5 +59,17 @@ export interface EnforceResponse {
   response: string;
   validation: {
     safe: boolean;
+    category?: string | null;
+    reason?: string | null;
   };
+  input_scan?: {
+    flagged: boolean;
+    category?: string | null;
+    reason?: string | null;
+  } | null;
+  output_filter?: {
+    filtered: boolean;
+    types: string[];
+    redacted_count: number;
+  } | null;
 }

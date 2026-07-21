@@ -5,10 +5,13 @@ from typing import Callable
 from .classifier import classify_intent
 from .policy import evaluate_policy
 from .router import route_decision
-from .validator import validate_response
+from .validator import scan_input, scan_output_pii, validate_response
 
 _BLOCKED_BY_VALIDATOR = (
     "This response has been withheld because it did not pass the safety validator."
+)
+_BLOCKED_BY_INPUT_SCAN = (
+    "This request has been blocked because the input contained a prompt-injection pattern."
 )
 
 
@@ -19,6 +22,21 @@ def enforce(
     intent_schema: dict | None = None,
     policy_rules: list[dict] | None = None,
 ) -> dict[str, object]:
+    input_scan = scan_input(prompt)
+    if input_scan["flagged"]:
+        return {
+            "intent": {"label": "injection_detected", "confidence": 1.0},
+            "decision": "block",
+            "response": _BLOCKED_BY_INPUT_SCAN,
+            "validation": {"safe": True, "category": None, "reason": None},
+            "input_scan": input_scan,
+            "output_filter": {
+                "filtered": False,
+                "types": [],
+                "redacted_count": 0,
+            },
+        }
+
     intent = classify_intent(prompt, schema=intent_schema)
 
     if policy_rules:
@@ -39,6 +57,15 @@ def enforce(
 
     if not validation["safe"]:
         response = _BLOCKED_BY_VALIDATOR
+        output_filter = {"filtered": False, "types": [], "redacted_count": 0}
+    else:
+        pii = scan_output_pii(response)
+        response = str(pii["redacted"])
+        output_filter = {
+            "filtered": pii["filtered"],
+            "types": pii["types"],
+            "redacted_count": pii["redacted_count"],
+        }
 
     return {
         "intent": {
@@ -48,4 +75,6 @@ def enforce(
         "decision": decision,
         "response": response,
         "validation": validation,
+        "input_scan": input_scan,
+        "output_filter": output_filter,
     }

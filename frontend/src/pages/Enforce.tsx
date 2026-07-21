@@ -161,6 +161,28 @@ export default function Enforce() {
                     <span>Safe</span>
                     <strong>{result.validation.safe ? "true" : "false"}</strong>
                   </p>
+                  {!result.validation.safe && result.validation.reason && (
+                    <p>
+                      <span>Flagged</span>
+                      <strong>{result.validation.reason}</strong>
+                    </p>
+                  )}
+                  {result.input_scan?.flagged && result.input_scan.reason && (
+                    <p>
+                      <span>Input scan</span>
+                      <strong>{result.input_scan.reason}</strong>
+                    </p>
+                  )}
+                  {result.output_filter?.filtered && (
+                    <p>
+                      <span>Output filter</span>
+                      <strong>
+                        Redacted {result.output_filter.redacted_count} PII item
+                        {result.output_filter.redacted_count === 1 ? "" : "s"} (
+                        {result.output_filter.types.join(", ")})
+                      </strong>
+                    </p>
+                  )}
                 </div>
 
                 <div className="text-block">
