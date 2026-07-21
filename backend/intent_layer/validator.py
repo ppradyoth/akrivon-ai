@@ -139,6 +139,7 @@ _PII_PATTERNS: list[tuple[str, re.Pattern[str], Callable[[str], bool] | None]] =
     ("ip_address", re.compile(r"\b(?:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)\.){3}(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)\b"), None),
     ("aws_access_key", re.compile(r"\b(?:AKIA|ASIA)[0-9A-Z]{16}\b"), None),
     ("google_api_key", re.compile(r"\bAIza[0-9A-Za-z_-]{35}\b"), None),
+    ("google_oauth_client_secret", re.compile(r"\bGOCSPX-[0-9A-Za-z_-]{28}\b"), None),
     ("github_pat", re.compile(r"\bgithub_pat_[0-9A-Za-z_]{82}\b"), None),
     ("github_token", re.compile(r"\b(?:ghp|gho|ghu|ghs|ghr)_[0-9A-Za-z]{36}\b"), None),
     ("npm_token", re.compile(r"\bnpm_[A-Za-z0-9]{36}\b"), None),
